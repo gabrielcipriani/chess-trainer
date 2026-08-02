@@ -1,12 +1,15 @@
 import { createBoard } from "./createBoard.js";
 import { boardState } from "./boardState.js";
 import { isMoveLegal } from "./moveRules.js";
+import { getValidMoves } from "./getValidMoves.js";
+import { showValidMoves } from "./showValidMoves.js";
 
 //Build board
 createBoard(boardState);
 
 //Get board container for event delegation
 const board = document.querySelector('.board');
+
 
 // Player turns
 let turn = 'w';
@@ -24,6 +27,7 @@ board.addEventListener('click', (event) => {
   if (newSelect === null) {
     return;
   }
+  
 
   // No square currently selected
   if (currentSelect === null) {
@@ -37,17 +41,19 @@ board.addEventListener('click', (event) => {
     else {
       newSelect.classList.add('selected');
       currentSelect = newSelect;
+      const currentPiece = currentSelect.querySelector('img');
+      const fromRow = Number(currentSelect.dataset.row);
+      const fromCol = Number(currentSelect.dataset.col);
+      // Get all valid moves
+      const validMoves = getValidMoves(boardState, fromRow, fromCol);
+      console.log(validMoves);
+      showValidMoves(validMoves, board);
     }
-
   }
 
   // Square already selected
   else {
-
-    const currentPiece = currentSelect.querySelector('img');
     const newPiece = newSelect.querySelector('img');
-    const fromRow = Number(currentSelect.dataset.row);
-    const fromCol = Number(currentSelect.dataset.col);
     const toRow = Number(newSelect.dataset.row);
     const toCol = Number(newSelect.dataset.col);
 
@@ -58,7 +64,11 @@ board.addEventListener('click', (event) => {
       return;
     }
 
+    // No piece already on targeted square
     if (newPiece === null) {
+      const currentPiece = currentSelect.querySelector('img');
+      const fromRow = Number(currentSelect.dataset.row);
+      const fromCol = Number(currentSelect.dataset.col);
       // Move piece to selected square
       if (isMoveLegal(boardState, fromRow, fromCol, toRow, toCol)) {
         currentSelect.classList.remove('selected');
@@ -132,6 +142,13 @@ board.addEventListener('click', (event) => {
       currentSelect.classList.remove('selected');
       newSelect.classList.add('selected');
       currentSelect = newSelect;
+      const currentPiece = currentSelect.querySelector('img');
+      const fromRow = Number(currentSelect.dataset.row);
+      const fromCol = Number(currentSelect.dataset.col);
+      // Get all valid moves
+      const validMoves = getValidMoves(boardState, fromRow, fromCol);
+      console.log(validMoves);
+      showValidMoves(validMoves, board);
       return;
     }
   }
