@@ -2,7 +2,7 @@ import { createBoard } from "./createBoard.js";
 import { boardState } from "./boardState.js";
 import { isMoveLegal } from "./moveRules.js";
 import { getValidMoves } from "./getValidMoves.js";
-import { showValidMoves } from "./showValidMoves.js";
+import { hideValidMoves, showValidMoves } from "./showValidMoves.js";
 
 //Build board
 createBoard(boardState);
@@ -27,8 +27,9 @@ board.addEventListener('click', (event) => {
   if (newSelect === null) {
     return;
   }
-  
 
+  hideValidMoves(board);
+  
   // No square currently selected
   if (currentSelect === null) {
     const newPiece = newSelect.querySelector('img');
@@ -53,6 +54,7 @@ board.addEventListener('click', (event) => {
 
   // Square already selected
   else {
+    
     const newPiece = newSelect.querySelector('img');
     const toRow = Number(newSelect.dataset.row);
     const toCol = Number(newSelect.dataset.col);
@@ -92,8 +94,9 @@ board.addEventListener('click', (event) => {
         }
 
       }
+      // Invalid move
       else if (!isMoveLegal(boardState, fromRow, fromCol, toRow, toCol)) {
-        // Invalid move
+        currentSelect.classList.remove('selected');
         return;
       }
     }
