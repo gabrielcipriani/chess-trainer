@@ -1,7 +1,6 @@
 import { createBoard } from "./createBoard.js";
 import { boardState } from "./boardState.js";
-import { isMoveLegal } from "./moveRules.js";
-import { getValidMoves } from "./getPseudoLegalMoves.js";
+import { getPseudoLegalMoves } from "./getPseudoLegalMoves.js";
 import { hideValidMoves, showValidMoves } from "./showValidMoves.js";
 
 //Build board
@@ -12,7 +11,7 @@ const board = document.querySelector('.board');
 
 
 // Player turns
-let turn = 'WHITE';
+let turn = 'w';
 document.querySelector('h1').textContent = "White's turn to move"
 let halfmoves = 0;
 let fullmoves = Math.floor(halfmoves/2);
@@ -34,8 +33,7 @@ board.addEventListener('click', (event) => {
   
   // No square currently selected
   if (currentSelect === null) {
-    const newPiece = newSelect.querySelector('img');
-    if (newPiece === null) {
+    if (newSelect.querySelector('img') === null) {
       return;
     }
     else if (boardState[newSelect.dataset.row][newSelect.dataset.col].color !== turn) {
@@ -82,12 +80,12 @@ board.addEventListener('click', (event) => {
         currentSelect = null;
         // Switch turn
         halfmoves += 1;
-        if (turn === 'WHITE') {
-          turn = 'BLACK';
+        if (turn === 'w') {
+          turn = 'b';
           document.querySelector('h1').textContent = "Black's turn to move"
         }
         else {
-          turn = 'WHITE';
+          turn = 'w';
           document.querySelector('h1').textContent = "White's turn to move"
         }
 

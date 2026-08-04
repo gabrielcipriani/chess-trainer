@@ -16,8 +16,6 @@ const PIECE_NAMES = {
   k: "KING",
 };
 
-import { isMoveLegal } from './moveRules.js';
-
 export function getPseudoLegalMoves(boardState, fromRow, fromCol) {
   const piece = boardState[fromRow][fromCol];
   console.log(piece)
