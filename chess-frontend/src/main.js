@@ -1,7 +1,7 @@
 import { createBoard } from "./createBoard.js";
 import { boardState } from "./boardState.js";
 import { isMoveLegal } from "./moveRules.js";
-import { getValidMoves } from "./getValidMoves.js";
+import { getValidMoves } from "./getPseudoLegalMoves.js";
 import { hideValidMoves, showValidMoves } from "./showValidMoves.js";
 
 //Build board
@@ -12,12 +12,14 @@ const board = document.querySelector('.board');
 
 
 // Player turns
-let turn = 'w';
-document.querySelector('h1').textContent = "White's turn"
+let turn = 'WHITE';
+document.querySelector('h1').textContent = "White's turn to move"
 let halfmoves = 0;
 let fullmoves = Math.floor(halfmoves/2);
 
 let currentSelect = null;
+let currentPiece = null;
+let validMoves = [];
 
 board.addEventListener('click', (event) => {
   const newSelect = event.target.closest('.square');
@@ -42,11 +44,11 @@ board.addEventListener('click', (event) => {
     else {
       newSelect.classList.add('selected');
       currentSelect = newSelect;
-      const currentPiece = currentSelect.querySelector('img');
+      currentPiece = currentSelect.querySelector('img');
       const fromRow = Number(currentSelect.dataset.row);
       const fromCol = Number(currentSelect.dataset.col);
       // Get all valid moves
-      const validMoves = getValidMoves(boardState, fromRow, fromCol);
+      validMoves = getPseudoLegalMoves(boardState, fromRow, fromCol);
       console.log(validMoves);
       showValidMoves(validMoves, board);
     }
@@ -54,7 +56,6 @@ board.addEventListener('click', (event) => {
 
   // Square already selected
   else {
-    
     const newPiece = newSelect.querySelector('img');
     const toRow = Number(newSelect.dataset.row);
     const toCol = Number(newSelect.dataset.col);
@@ -66,13 +67,10 @@ board.addEventListener('click', (event) => {
       return;
     }
 
-    // No piece already on targeted square
+    // No piece on targeted square
     if (newPiece === null) {
-      const currentPiece = currentSelect.querySelector('img');
-      const fromRow = Number(currentSelect.dataset.row);
-      const fromCol = Number(currentSelect.dataset.col);
       // Move piece to selected square
-      if (isMoveLegal(boardState, fromRow, fromCol, toRow, toCol)) {
+      if (validMoves.some(move => move.row === toRow && move.col == toCol)) {
         currentSelect.classList.remove('selected');
         boardState[currentSelect.dataset.row][currentSelect.dataset.col].hasMoved = true;
         boardState[newSelect.dataset.row][newSelect.dataset.col] = boardState[currentSelect.dataset.row][currentSelect.dataset.col];
@@ -84,47 +82,38 @@ board.addEventListener('click', (event) => {
         currentSelect = null;
         // Switch turn
         halfmoves += 1;
-        if (turn === 'w') {
-          turn = 'b';
-          document.querySelector('h1').textContent = "Black's turn"
+        if (turn === 'WHITE') {
+          turn = 'BLACK';
+          document.querySelector('h1').textContent = "Black's turn to move"
         }
         else {
-          turn = 'w';
-          document.querySelector('h1').textContent = "White's turn"
+          turn = 'WHITE';
+          document.querySelector('h1').textContent = "White's turn to move"
         }
 
       }
       // Invalid move
-      else if (!isMoveLegal(boardState, fromRow, fromCol, toRow, toCol)) {
+      else {
         currentSelect.classList.remove('selected');
+        currentSelect = null;
         return;
       }
     }
-    // Capture logic
+    // Opponent piece - capture if possible
     else if (newPiece !== null && boardState[newSelect.dataset.row][newSelect.dataset.col].color !== boardState[currentSelect.dataset.row][currentSelect.dataset.col].color) {
-      if (isMoveLegal(boardState, fromRow, fromCol, toRow, toCol)) {
+      if (validMoves.some(move => move.row === toRow && move.col == toCol)) {
+        currentSelect.classList.remove('selected');
+        boardState[currentSelect.dataset.row][currentSelect.dataset.col].hasMoved = true;
+        boardState[newSelect.dataset.row][newSelect.dataset.col] = boardState[currentSelect.dataset.row][currentSelect.dataset.col];
+        boardState[currentSelect.dataset.row][currentSelect.dataset.col] = null;
 
-        // Check if king to be captured
-        if (boardState[newSelect.dataset.row][newSelect.dataset.col].type = 'k') {
-          return;
-        }
-        // Pawn must capture diagonally
-        else if (boardState[currentSelect.dataset.row][currentSelect.dataset.col].type = 'p') {
-          if (fromCol === toCol) {
-            return;
-          }
-        }
-        else {
-          currentSelect.classList.remove('selected');
-          boardState[newSelect.dataset.row][newSelect.dataset.col] = boardState[currentSelect.dataset.row][currentSelect.dataset.col];
-          boardState[currentSelect.dataset.row][currentSelect.dataset.col] = null;
-        }
+        console.log(boardState)
 
         // Update images
         newPiece.remove();
         newSelect.appendChild(currentPiece);
-
         currentSelect = null;
+        
         // Switch turn
         halfmoves += 1;
         if (turn === 'w') {
@@ -136,20 +125,23 @@ board.addEventListener('click', (event) => {
           document.querySelector('h1').textContent = "White's turn"
         }
       }
-      else if (!isMoveLegal(boardState, fromRow, fromCol, toRow, toCol)) {
-        // Invalid move
+      // Invalid move
+      else {
+        currentSelect.classList.remove('selected');
+        currentSelect = null;
         return;
       }
     }
+    // Same color piece - switch selection
     else {
       currentSelect.classList.remove('selected');
       newSelect.classList.add('selected');
       currentSelect = newSelect;
-      const currentPiece = currentSelect.querySelector('img');
-      const fromRow = Number(currentSelect.dataset.row);
+      currentPiece = currentSelect.querySelector('img');
+      fromRowconst  = Number(currentSelect.dataset.row);
       const fromCol = Number(currentSelect.dataset.col);
       // Get all valid moves
-      const validMoves = getValidMoves(boardState, fromRow, fromCol);
+      validMoves = getPseudoLegalMoves(boardState, fromRow, fromCol);
       console.log(validMoves);
       showValidMoves(validMoves, board);
       return;
