@@ -6,11 +6,30 @@ body {
   justify-content: center;
 }
 
+.game-container {
+  display: flex;
+  flex-direction: row;
+}
+
 h1 {
     color: white;
     text-align: center;
 }
 
+.promotion-menu {
+  display: none;
+  flex-direction: row;
+  background-color: white;
+  width: 400px;
+  height: 100px;
+  justify-content: center;
+  align-items: center;
+}
+
+.promotion-menu img {
+    width: 90;
+    height: 90;
+}
 
 .board {
   display: grid;

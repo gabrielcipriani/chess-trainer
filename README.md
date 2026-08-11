@@ -1,6 +1,6 @@
-A Vite-based project for building a chess website.
+A chess based site for playing games online with other players and training openings.
 
 # How to run
 
-npm install
-npm run dev
+1. npm install
+2. npm run dev

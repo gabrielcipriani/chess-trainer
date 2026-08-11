@@ -2,6 +2,7 @@ import { createBoard } from "./createBoard.js";
 import { boardState } from "./boardState.js";
 import { getPseudoLegalMoves } from "./getPseudoLegalMoves.js";
 import { hideValidMoves, showValidMoves } from "./showValidMoves.js";
+import { showPromotionMenu } from "./promotionMenu.js";
 
 //Build board
 createBoard(boardState);
@@ -20,7 +21,7 @@ let currentSelect = null;
 let currentPiece = null;
 let validMoves = [];
 
-board.addEventListener('click', (event) => {
+board.addEventListener('click', async (event) => {
   const newSelect = event.target.closest('.square');
   console.log(newSelect)
 
@@ -71,13 +72,21 @@ board.addEventListener('click', (event) => {
       if (validMoves.some(move => move.row === toRow && move.col == toCol)) {
         currentSelect.classList.remove('selected');
         boardState[currentSelect.dataset.row][currentSelect.dataset.col].hasMoved = true;
+
         boardState[newSelect.dataset.row][newSelect.dataset.col] = boardState[currentSelect.dataset.row][currentSelect.dataset.col];
         boardState[currentSelect.dataset.row][currentSelect.dataset.col] = null;
 
-        // Update image
+        currentSelect = null;
+        currentPiece.remove();
         newSelect.appendChild(currentPiece);
 
-        currentSelect = null;
+        // Check for pawn promotion
+        if (boardState[newSelect.dataset.row][newSelect.dataset.col].type === 'p' && (toRow === 0 || toRow === 7)) {
+          const promotedPiece = await showPromotionMenu(turn);
+          boardState[newSelect.dataset.row][newSelect.dataset.col].type = promotedPiece;
+          newSelect.querySelector('img').src = `src/assets/${promotedPiece + turn}.svg`;
+          }
+
         // Switch turn
         halfmoves += 1;
         if (turn === 'w') {
@@ -88,7 +97,6 @@ board.addEventListener('click', (event) => {
           turn = 'w';
           document.querySelector('h1').textContent = "White's turn to move"
         }
-
       }
       // Invalid move
       else {
@@ -105,12 +113,16 @@ board.addEventListener('click', (event) => {
         boardState[newSelect.dataset.row][newSelect.dataset.col] = boardState[currentSelect.dataset.row][currentSelect.dataset.col];
         boardState[currentSelect.dataset.row][currentSelect.dataset.col] = null;
 
-        console.log(boardState)
-
-        // Update images
         newPiece.remove();
-        newSelect.appendChild(currentPiece);
         currentSelect = null;
+        newSelect.appendChild(currentPiece);
+
+        // Check for pawn promotion
+        if (boardState[newSelect.dataset.row][newSelect.dataset.col].type === 'p' && (toRow === 0 || toRow === 7)) {
+          const promotedPiece = await showPromotionMenu(turn);
+          boardState[newSelect.dataset.row][newSelect.dataset.col].type = promotedPiece;
+          newSelect.querySelector('img').src = `src/assets/${promotedPiece + turn}.svg`;
+        }
         
         // Switch turn
         halfmoves += 1;
@@ -136,7 +148,7 @@ board.addEventListener('click', (event) => {
       newSelect.classList.add('selected');
       currentSelect = newSelect;
       currentPiece = currentSelect.querySelector('img');
-      fromRowconst  = Number(currentSelect.dataset.row);
+      const fromRow = Number(currentSelect.dataset.row);
       const fromCol = Number(currentSelect.dataset.col);
       // Get all valid moves
       validMoves = getPseudoLegalMoves(boardState, fromRow, fromCol);

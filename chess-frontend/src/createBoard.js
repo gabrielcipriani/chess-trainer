@@ -3,7 +3,7 @@ export function createBoard(state) {
     const board = document.querySelector('.board');
     // loop over rows
     for (let row = 0; row < 8; row++) { 
-        // loop over columns
+        // loop ov er columns
         for (let col = 0; col < 8; col++) { 
             const newSquare = document.createElement('div');
             // add square class and colour square class
