@@ -4,19 +4,21 @@ import { getPseudoLegalMoves } from "./getPseudoLegalMoves.js";
 import { hideValidMoves, showValidMoves } from "./showValidMoves.js";
 import { showPromotionMenu } from "./promotionMenu.js";
 
-//Build board
+
+// Start board history
+const boardHistory = [];
+boardHistory.push(boardState);
+
+// Build board on DOM
 createBoard(boardState);
 
 //Get board container for event delegation
 const board = document.querySelector('.board');
 
-
 // Player turns
 let turn = 'w';
 document.querySelector('h1').textContent = "White's turn to move"
 let halfmoves = 0;
-let fullmoves = Math.floor(halfmoves/2);
-
 let currentSelect = null;
 let currentPiece = null;
 let validMoves = [];
@@ -32,7 +34,7 @@ board.addEventListener('click', async (event) => {
 
   hideValidMoves(board);
   
-  // No square currently selected
+  // No square currently selected: select initial square
   if (currentSelect === null) {
     if (newSelect.querySelector('img') === null) {
       return;
@@ -53,7 +55,7 @@ board.addEventListener('click', async (event) => {
     }
   }
 
-  // Square already selected
+  // There is a square already selected
   else {
     const newPiece = newSelect.querySelector('img');
     const toRow = Number(newSelect.dataset.row);
@@ -70,12 +72,13 @@ board.addEventListener('click', async (event) => {
     if (newPiece === null) {
       // Move piece to selected square
       if (validMoves.some(move => move.row === toRow && move.col == toCol)) {
+        // Remove highlight and update moved status
         currentSelect.classList.remove('selected');
         boardState[currentSelect.dataset.row][currentSelect.dataset.col].hasMoved = true;
-
+        // Update board state
         boardState[newSelect.dataset.row][newSelect.dataset.col] = boardState[currentSelect.dataset.row][currentSelect.dataset.col];
         boardState[currentSelect.dataset.row][currentSelect.dataset.col] = null;
-
+        // Update DOM
         currentSelect = null;
         currentPiece.remove();
         newSelect.appendChild(currentPiece);
@@ -97,6 +100,8 @@ board.addEventListener('click', async (event) => {
           turn = 'w';
           document.querySelector('h1').textContent = "White's turn to move"
         }
+        // Update board state
+        boardHistory.push(boardState);
       }
       // Invalid move
       else {
@@ -134,6 +139,8 @@ board.addEventListener('click', async (event) => {
           turn = 'w';
           document.querySelector('h1').textContent = "White's turn"
         }
+        // Update board state
+        boardHistory.push(boardState);
       }
       // Invalid move
       else {

@@ -1,6 +1,4 @@
-// TODO - MAKE SURE BOUND CHECKS FOR ALL PIECES
-
-const DIRECTIONS = {
+export const DIRECTIONS = {
   ROOK: [[-1,0], [0,1], [1,0], [0,-1]],
   BISHOP: [[-1,-1], [-1,1], [1,1], [1,-1]],
   QUEEN: [[-1,0], [0,1], [1,0], [0,-1], [-1,-1], [-1,1], [1,1], [1,-1]],
