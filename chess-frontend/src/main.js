@@ -1,6 +1,7 @@
 import { createBoard } from "./createBoard.js";
 import { boardState } from "./boardState.js";
 import { getPseudoLegalMoves } from "./getPseudoLegalMoves.js";
+import { getValidMoves } from "./getValidMoves.js";
 import { hideValidMoves, showValidMoves } from "./showValidMoves.js";
 import { showPromotionMenu } from "./promotionMenu.js";
 
@@ -49,7 +50,7 @@ board.addEventListener('click', async (event) => {
       const fromRow = Number(currentSelect.dataset.row);
       const fromCol = Number(currentSelect.dataset.col);
       // Get all valid moves
-      validMoves = getPseudoLegalMoves(boardState, fromRow, fromCol);
+      validMoves = getValidMoves(boardState, fromRow, fromCol, turn);
       console.log(validMoves);
       showValidMoves(validMoves, board);
     }
@@ -158,7 +159,7 @@ board.addEventListener('click', async (event) => {
       const fromRow = Number(currentSelect.dataset.row);
       const fromCol = Number(currentSelect.dataset.col);
       // Get all valid moves
-      validMoves = getPseudoLegalMoves(boardState, fromRow, fromCol);
+      validMoves = getValidMoves(boardState, fromRow, fromCol, turn);
       console.log(validMoves);
       showValidMoves(validMoves, board);
       return;
