@@ -7,8 +7,8 @@ body {
 }
 
 .game-container {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-areas: "overlay";
 }
 
 h1 {
@@ -17,21 +17,41 @@ h1 {
 }
 
 .promotion-menu {
+  grid-area: overlay;
   display: none;
   flex-direction: row;
   background-color: white;
+  border: 2px solid black;
   width: 400px;
   height: 100px;
   justify-content: center;
   align-items: center;
+  justify-self: center;
+  align-self: center;
+  z-index: 10; 
 }
 
 .promotion-menu img {
-    width: 90;
-    height: 90;
+    width: 90px;
+    height: 90px;
+}
+
+.checkmate-menu {
+  grid-area: overlay;
+  display: none;
+  background-color: white;
+  border: 2px solid black;
+  width: 400px;
+  height: 100px;
+  justify-content: center;
+  align-items: center;
+  justify-self: center;
+  align-self: center;
+  z-index: 10;
 }
 
 .board {
+  grid-area: overlay;
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
   grid-template-rows: repeat(8, minmax(0, 1fr));

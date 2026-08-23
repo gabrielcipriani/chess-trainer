@@ -1,9 +1,9 @@
 import { createBoard } from "./createBoard.js";
 import { boardState } from "./boardState.js";
-import { getPseudoLegalMoves } from "./getPseudoLegalMoves.js";
 import { getValidMoves } from "./getValidMoves.js";
 import { hideValidMoves, showValidMoves } from "./showValidMoves.js";
 import { showPromotionMenu } from "./promotionMenu.js";
+import { showCheckmateMenu } from "./checkmateMenu.js";
 
 
 // Start board history
@@ -51,15 +51,19 @@ board.addEventListener('click', async (event) => {
       const fromCol = Number(currentSelect.dataset.col);
       // Get all valid moves
       validMoves = getValidMoves(boardState, fromRow, fromCol, turn);
-      console.log(validMoves);
-      showValidMoves(validMoves, board);
+      if (validMoves.length === 0) {
+        showCheckmateMenu();
+      }
+      else {
+        showValidMoves(validMoves, board);
+      }
     }
   }
 
   // There is a square already selected
   else {
     const newPiece = newSelect.querySelector('img');
-    const toRow = Number(newSelect.dataset.row);
+    const toRow = Number(newSelect.dataset.ro w);
     const toCol = Number(newSelect.dataset.col);
 
     // Same square clicked twice
