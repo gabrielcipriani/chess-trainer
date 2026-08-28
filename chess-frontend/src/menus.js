@@ -1,7 +1,3 @@
-function onPromotionChoice() {
-  
-}
-
 export function showPromotionMenu(turn) {
   const promotionMenu = document.querySelector('.promotion-menu');
   promotionMenu.innerHTML = '';
@@ -32,4 +28,9 @@ export function showPromotionMenu(turn) {
       resolve(chosenPiece);
     });
   }, { once: true });
+}
+
+export function showCheckmateMenu() {
+  const checkmateMenu = document.querySelector('.checkmate-menu');
+  checkmateMenu.style.display = 'flex';
 }

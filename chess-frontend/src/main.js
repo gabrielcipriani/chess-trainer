@@ -1,9 +1,9 @@
-import { createBoard } from "./createBoard.js";
+import { createBoard } from "./createBoard.js"; 
 import { boardState } from "./boardState.js";
 import { getValidMoves } from "./getValidMoves.js";
 import { hideValidMoves, showValidMoves } from "./showValidMoves.js";
-import { showPromotionMenu } from "./promotionMenu.js";
-import { showCheckmateMenu } from "./checkmateMenu.js";
+import { showPromotionMenu } from "./menus.js";
+import { showCheckmateMenu } from "./menus.js";
 
 
 // Start board history
@@ -62,8 +62,10 @@ board.addEventListener('click', async (event) => {
 
   // There is a square already selected
   else {
+    // New selected piece
     const newPiece = newSelect.querySelector('img');
-    const toRow = Number(newSelect.dataset.ro w);
+    // Destination square position
+    const toRow = Number(newSelect.dataset.row);
     const toCol = Number(newSelect.dataset.col);
 
     // Same square clicked twice
