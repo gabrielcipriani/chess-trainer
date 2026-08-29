@@ -1,3 +1,7 @@
+/**
+ * Creates the chess board DOM and adds piece images to it
+ * @param {Array} state - The current state of the board
+ */
 export function createBoard(state) {
 
     const board = document.querySelector('.board');

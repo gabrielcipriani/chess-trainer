@@ -4,14 +4,17 @@ import { getValidMoves } from "./getValidMoves.js";
 import { hideValidMoves, showValidMoves } from "./showValidMoves.js";
 import { showPromotionMenu } from "./menus.js";
 import { showCheckmateMenu } from "./menus.js";
+import { updateBoard } from "./updateBoard.js";
 
+// Copy of starting board state
+let currentBoard = structuredClone(boardState);
 
 // Start board history
 const boardHistory = [];
-boardHistory.push(boardState);
+boardHistory.push(currentBoard);
 
 // Build board on DOM
-createBoard(boardState);
+createBoard(currentBoard);
 
 //Get board container for event delegation
 const board = document.querySelector('.board');
@@ -40,7 +43,7 @@ board.addEventListener('click', async (event) => {
     if (newSelect.querySelector('img') === null) {
       return;
     }
-    else if (boardState[newSelect.dataset.row][newSelect.dataset.col].color !== turn) {
+    else if (currentBoard[newSelect.dataset.row][newSelect.dataset.col].color !== turn) {
       return;
     }
     else {
@@ -50,7 +53,7 @@ board.addEventListener('click', async (event) => {
       const fromRow = Number(currentSelect.dataset.row);
       const fromCol = Number(currentSelect.dataset.col);
       // Get all valid moves
-      validMoves = getValidMoves(boardState, fromRow, fromCol, turn);
+      validMoves = getValidMoves(currentBoard, fromRow, fromCol, turn);
       if (validMoves.length === 0) {
         showCheckmateMenu();
       }
@@ -68,7 +71,7 @@ board.addEventListener('click', async (event) => {
     const toRow = Number(newSelect.dataset.row);
     const toCol = Number(newSelect.dataset.col);
 
-    // Same square clicked twice
+    // Reset if same square clicked twice
     if (newSelect === currentSelect) {
       currentSelect.classList.remove('selected');
       currentSelect = null;
@@ -79,21 +82,19 @@ board.addEventListener('click', async (event) => {
     if (newPiece === null) {
       // Move piece to selected square
       if (validMoves.some(move => move.row === toRow && move.col == toCol)) {
-        // Remove highlight and update moved status
+        // Remove highlight
         currentSelect.classList.remove('selected');
-        boardState[currentSelect.dataset.row][currentSelect.dataset.col].hasMoved = true;
         // Update board state
-        boardState[newSelect.dataset.row][newSelect.dataset.col] = boardState[currentSelect.dataset.row][currentSelect.dataset.col];
-        boardState[currentSelect.dataset.row][currentSelect.dataset.col] = null;
+        currentBoard = updateBoard(currentBoard, Number(currentSelect.dataset.row), Number(currentSelect.dataset.col), { row: toRow, col: toCol });
         // Update DOM
         currentSelect = null;
         currentPiece.remove();
         newSelect.appendChild(currentPiece);
 
         // Check for pawn promotion
-        if (boardState[newSelect.dataset.row][newSelect.dataset.col].type === 'p' && (toRow === 0 || toRow === 7)) {
+        if (currentBoard[newSelect.dataset.row][newSelect.dataset.col].type === 'p' && (toRow === 0 || toRow === 7)) {
           const promotedPiece = await showPromotionMenu(turn);
-          boardState[newSelect.dataset.row][newSelect.dataset.col].type = promotedPiece;
+          currentBoard[newSelect.dataset.row][newSelect.dataset.col].type = promotedPiece;
           newSelect.querySelector('img').src = `src/assets/${promotedPiece + turn}.svg`;
           }
 
@@ -107,8 +108,9 @@ board.addEventListener('click', async (event) => {
           turn = 'w';
           document.querySelector('h1').textContent = "White's turn to move"
         }
-        // Update board state
-        boardHistory.push(boardState);
+
+        // Update board history
+        boardHistory.push(currentBoard);
       }
       // Invalid move
       else {
@@ -118,21 +120,21 @@ board.addEventListener('click', async (event) => {
       }
     }
     // Opponent piece - capture if possible
-    else if (newPiece !== null && boardState[newSelect.dataset.row][newSelect.dataset.col].color !== boardState[currentSelect.dataset.row][currentSelect.dataset.col].color) {
+    else if (newPiece !== null && currentBoard[newSelect.dataset.row][newSelect.dataset.col].color !== currentBoard[currentSelect.dataset.row][currentSelect.dataset.col].color) {
       if (validMoves.some(move => move.row === toRow && move.col == toCol)) {
         currentSelect.classList.remove('selected');
-        boardState[currentSelect.dataset.row][currentSelect.dataset.col].hasMoved = true;
-        boardState[newSelect.dataset.row][newSelect.dataset.col] = boardState[currentSelect.dataset.row][currentSelect.dataset.col];
-        boardState[currentSelect.dataset.row][currentSelect.dataset.col] = null;
+        currentBoard[currentSelect.dataset.row][currentSelect.dataset.col].hasMoved = true;
+        currentBoard[newSelect.dataset.row][newSelect.dataset.col] = currentBoard[currentSelect.dataset.row][currentSelect.dataset.col];
+        currentBoard[currentSelect.dataset.row][currentSelect.dataset.col] = null;
 
         newPiece.remove();
         currentSelect = null;
         newSelect.appendChild(currentPiece);
 
         // Check for pawn promotion
-        if (boardState[newSelect.dataset.row][newSelect.dataset.col].type === 'p' && (toRow === 0 || toRow === 7)) {
+        if (currentBoard[newSelect.dataset.row][newSelect.dataset.col].type === 'p' && (toRow === 0 || toRow === 7)) {
           const promotedPiece = await showPromotionMenu(turn);
-          boardState[newSelect.dataset.row][newSelect.dataset.col].type = promotedPiece;
+          currentBoard[newSelect.dataset.row][newSelect.dataset.col].type = promotedPiece;
           newSelect.querySelector('img').src = `src/assets/${promotedPiece + turn}.svg`;
         }
         
@@ -147,7 +149,7 @@ board.addEventListener('click', async (event) => {
           document.querySelector('h1').textContent = "White's turn"
         }
         // Update board state
-        boardHistory.push(boardState);
+        boardHistory.push(currentBoard);
       }
       // Invalid move
       else {
@@ -165,7 +167,7 @@ board.addEventListener('click', async (event) => {
       const fromRow = Number(currentSelect.dataset.row);
       const fromCol = Number(currentSelect.dataset.col);
       // Get all valid moves
-      validMoves = getValidMoves(boardState, fromRow, fromCol, turn);
+      validMoves = getValidMoves(currentBoard, fromRow, fromCol, turn);
       console.log(validMoves);
       showValidMoves(validMoves, board);
       return;
