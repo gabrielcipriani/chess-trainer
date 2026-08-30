@@ -34,3 +34,8 @@ export function showCheckmateMenu() {
   const checkmateMenu = document.querySelector('.checkmate-menu');
   checkmateMenu.style.display = 'flex';
 }
+
+export function showStalemateMenu() {
+  const stalemateMenu = document.querySelector('.stalemate-menu');
+  stalemateMenu.style.display = 'flex';
+}

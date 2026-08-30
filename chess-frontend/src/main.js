@@ -4,7 +4,10 @@ import { getValidMoves } from "./getValidMoves.js";
 import { hideValidMoves, showValidMoves } from "./showValidMoves.js";
 import { showPromotionMenu } from "./menus.js";
 import { showCheckmateMenu } from "./menus.js";
+import { showStalemateMenu } from "./menus.js";
 import { updateBoard } from "./updateBoard.js";
+import { isKingInCheck } from "./isKingInCheck.js";
+import { playerHasLegalMove } from "./playerHasLegalMove.js";
 
 // Copy of starting board state
 let currentBoard = structuredClone(boardState);
@@ -26,8 +29,12 @@ let halfmoves = 0;
 let currentSelect = null;
 let currentPiece = null;
 let validMoves = [];
+let gameOver = false;
 
 board.addEventListener('click', async (event) => {
+  if (gameOver) {
+    return;
+  }
   const newSelect = event.target.closest('.square');
   console.log(newSelect)
 
@@ -54,12 +61,7 @@ board.addEventListener('click', async (event) => {
       const fromCol = Number(currentSelect.dataset.col);
       // Get all valid moves
       validMoves = getValidMoves(currentBoard, fromRow, fromCol, turn);
-      if (validMoves.length === 0) {
-        showCheckmateMenu();
-      }
-      else {
-        showValidMoves(validMoves, board);
-      }
+      showValidMoves(validMoves, board);
     }
   }
 
@@ -111,6 +113,14 @@ board.addEventListener('click', async (event) => {
 
         // Update board history
         boardHistory.push(currentBoard);
+
+        // Check if checkmate or stalemate
+        if (!playerHasLegalMove(currentBoard, turn) && isKingInCheck(currentBoard, turn)) {
+          showCheckmateMenu();
+        }
+        else if (!playerHasLegalMove(currentBoard, turn) && !isKingInCheck(currentBoard, turn)) {
+          showStalemateMenu();
+        }
       }
       // Invalid move
       else {
@@ -148,8 +158,17 @@ board.addEventListener('click', async (event) => {
           turn = 'w';
           document.querySelector('h1').textContent = "White's turn"
         }
+
         // Update board state
         boardHistory.push(currentBoard);
+
+        // Check if checkmate or stalemate
+        if (!playerHasLegalMove(currentBoard, turn) && isKingInCheck(currentBoard, turn)) {
+          showCheckmateMenu();
+        }
+        else if (!playerHasLegalMove(currentBoard, turn) && !isKingInCheck(currentBoard, turn)) {
+          showStalemateMenu();
+        }
       }
       // Invalid move
       else {
