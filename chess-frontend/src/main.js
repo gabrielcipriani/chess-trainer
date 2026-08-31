@@ -43,7 +43,7 @@ board.addEventListener('click', async (event) => {
     return;
   }
 
-  hideValidMoves(board);
+  hideValidMoves();
   
   // No square currently selected: select initial square
   if (currentSelect === null) {
@@ -61,7 +61,7 @@ board.addEventListener('click', async (event) => {
       const fromCol = Number(currentSelect.dataset.col);
       // Get all valid moves
       validMoves = getValidMoves(currentBoard, fromRow, fromCol, turn);
-      showValidMoves(validMoves, board);
+      showValidMoves(validMoves);
     }
   }
 
@@ -86,12 +86,27 @@ board.addEventListener('click', async (event) => {
       if (validMoves.some(move => move.row === toRow && move.col == toCol)) {
         // Remove highlight
         currentSelect.classList.remove('selected');
+
+        // Measure origin and destination squares
+        const originRect = currentSelect.getBoundingClientRect();
+        const destinationRect = newSelect.getBoundingClientRect();
+
         // Update board state
         currentBoard = updateBoard(currentBoard, Number(currentSelect.dataset.row), Number(currentSelect.dataset.col), { row: toRow, col: toCol });
+
         // Update DOM
         currentSelect = null;
-        currentPiece.remove();
         newSelect.appendChild(currentPiece);
+
+        // Animate move
+        const x = originRect.left - destinationRect.left;
+        const y = originRect.top - destinationRect.top;
+        currentPiece.style.transform = `translate(${x}px, ${y}px)`;
+
+        requestAnimationFrame(() => {
+          currentPiece.style.transition = 'transform 0.3s';
+          currentPiece.style.transform = 'translate(0, 0)';
+        });
 
         // Check for pawn promotion
         if (currentBoard[newSelect.dataset.row][newSelect.dataset.col].type === 'p' && (toRow === 0 || toRow === 7)) {
@@ -132,14 +147,30 @@ board.addEventListener('click', async (event) => {
     // Opponent piece - capture if possible
     else if (newPiece !== null && currentBoard[newSelect.dataset.row][newSelect.dataset.col].color !== currentBoard[currentSelect.dataset.row][currentSelect.dataset.col].color) {
       if (validMoves.some(move => move.row === toRow && move.col == toCol)) {
+        // Remove highlight
         currentSelect.classList.remove('selected');
-        currentBoard[currentSelect.dataset.row][currentSelect.dataset.col].hasMoved = true;
-        currentBoard[newSelect.dataset.row][newSelect.dataset.col] = currentBoard[currentSelect.dataset.row][currentSelect.dataset.col];
-        currentBoard[currentSelect.dataset.row][currentSelect.dataset.col] = null;
 
+        // Measure origin and destination squares
+        const originRect = currentSelect.getBoundingClientRect();
+        const destinationRect = newSelect.getBoundingClientRect();
+
+        // Update board state
+        currentBoard = updateBoard(currentBoard, Number(currentSelect.dataset.row), Number(currentSelect.dataset.col), { row: toRow, col: toCol });
+
+        // Update DOM
         newPiece.remove();
         currentSelect = null;
         newSelect.appendChild(currentPiece);
+
+        // Animate move
+        const x = originRect.left - destinationRect.left;
+        const y = originRect.top - destinationRect.top;
+        currentPiece.style.transform = `translate(${x}px, ${y}px)`;
+
+        requestAnimationFrame(() => {
+          currentPiece.style.transition = 'transform 0.3s';
+          currentPiece.style.transform = 'translate(0, 0)';
+        });
 
         // Check for pawn promotion
         if (currentBoard[newSelect.dataset.row][newSelect.dataset.col].type === 'p' && (toRow === 0 || toRow === 7)) {
@@ -188,7 +219,7 @@ board.addEventListener('click', async (event) => {
       // Get all valid moves
       validMoves = getValidMoves(currentBoard, fromRow, fromCol, turn);
       console.log(validMoves);
-      showValidMoves(validMoves, board);
+      showValidMoves(validMoves);
       return;
     }
   }

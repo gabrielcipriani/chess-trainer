@@ -1,4 +1,4 @@
-export function showValidMoves(moves, board) {
+export function showValidMoves(moves) {
   for (const move of moves) {
     const row = move.row;
     const col = move.col;
@@ -10,7 +10,7 @@ export function showValidMoves(moves, board) {
   }
 }
 
-export function hideValidMoves(board) {
+export function hideValidMoves() {
   const highlightedSquares = document.querySelectorAll('.valid-move-marker');
   if (highlightedSquares) {
     highlightedSquares.forEach((square) => {
