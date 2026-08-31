@@ -1,6 +1,7 @@
 import { isKingInCheck } from "./isKingInCheck.js";
 import { updateBoard } from "./updateBoard.js";
 import { getPseudoLegalMoves } from "./getPseudoLegalMoves.js";
+import { getCastlingMoves } from "./specialMoves.js";
 
 /**
  * Returns an array of valid moves for a piece at (fromRow, fromCol).
@@ -15,5 +16,12 @@ export function getValidMoves(boardState, fromRow, fromCol, turn) {
       validMoves.push(move);
     }
   }
+  if (boardState[fromRow][fromCol]?.type === 'k') {
+    const castlingMoves = getCastlingMoves(boardState, turn);
+    if (castlingMoves) {
+      validMoves.push(...castlingMoves)
+    }
+  }
+  
   return validMoves;
 }
