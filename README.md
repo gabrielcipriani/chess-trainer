@@ -1,5 +1,7 @@
 # Chess Trainer
 
+![CI](https://github.com/gabrielcipriani/chess-trainer/actions/workflows/ci.yml/badge.svg)
+
 A web-based chess application for playing chess and practising openings, built with vanilla JavaScript and Vite.
 
 ## Features
