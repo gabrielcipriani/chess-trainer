@@ -20,7 +20,7 @@ for (let row = 0; row < 8; row++) {
         const piece = state[row][col];
         const pieceElement = document.createElement('img');
         if (piece) {
-            pieceElement.src = `src/assets/${piece.type + piece.color}.svg`;
+            pieceElement.src = `/pieces/${piece.type + piece.color}.svg`;
             newSquare.appendChild(pieceElement);
         }
 

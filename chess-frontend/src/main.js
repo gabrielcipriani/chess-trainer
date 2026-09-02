@@ -24,7 +24,7 @@ const board = document.querySelector('.board');
 
 // Player turns
 let turn = 'w';
-document.querySelector('h1').textContent = "White's turn to move"
+document.querySelector('h1').textContent = "White's turn"
 let halfmoves = 0;
 let currentSelect = null;
 let currentPieceImg = null;
@@ -108,7 +108,7 @@ board.addEventListener('click', async (event) => {
         const isCastling = currentBoard[fromRow][fromCol]?.type === 'k' && (fromRow === toRow && Math.abs(fromCol - toCol) === 2);
 
         // Check if en passant (pawn moves diagonally into empty square)
-        const isEnPassant = Math.abs(fromCol - toCol === 1);
+        const isEnPassant = lastMove.type === 'p' && currentBoard[fromRow][fromCol].type === 'p' && Math.abs(fromCol - toCol === 1);
 
         if (isEnPassant) {
           // Remove the previous pawn (same row as passing pawn, )
@@ -138,7 +138,7 @@ board.addEventListener('click', async (event) => {
         if (currentBoard[toRow][toCol].type === 'p' && (toRow === 0 || toRow === 7)) {
           const promotedPiece = await showPromotionMenu(turn);
           currentBoard[toRow][toCol].type = promotedPiece;
-          newSelect.querySelector('img').src = `src/assets/${promotedPiece + turn}.svg`;
+          newSelect.querySelector('img').src = `/pieces/${promotedPiece + turn}.svg`;
         }
 
         // Castling
@@ -172,11 +172,11 @@ board.addEventListener('click', async (event) => {
         halfmoves += 1;
         if (turn === 'w') {
           turn = 'b';
-          document.querySelector('h1').textContent = "Black's turn to move"
+          document.querySelector('h1').textContent = "Black's turn"
         }
         else {
           turn = 'w';
-          document.querySelector('h1').textContent = "White's turn to move"
+          document.querySelector('h1').textContent = "White's turn"
         }
       
 
@@ -240,7 +240,7 @@ board.addEventListener('click', async (event) => {
         if (currentBoard[toRow][toCol].type === 'p' && (toRow === 0 || toRow === 7)) {
           const promotedPiece = await showPromotionMenu(turn);
           currentBoard[toRow][toCol].type = promotedPiece;
-          newSelect.querySelector('img').src = `src/assets/${promotedPiece + turn}.svg`;
+          newSelect.querySelector('img').src = `/pieces/${promotedPiece + turn}.svg`;
         }
         
         // Switch turn
@@ -288,3 +288,44 @@ board.addEventListener('click', async (event) => {
     }
   }
 });
+
+// let draggedPiece = null;
+// let initialLeft = null;
+// let initialTop = null;
+// let offsetX = null;
+// let offsetY = null;
+
+// board.addEventListener('pointerdown', (event) => {
+//     draggedPiece = event.target.closest('img');
+//     if (!draggedPiece) return;
+
+//     const square = event.target.closest('.square');
+//     const fromRow = Number(square.dataset.row);
+//     const fromCol = Number(square.dataset.col);
+//     const pieceColor = currentBoard[fromRow][fromCol].color;
+//     if (pieceColor !== turn) {
+//       draggedPiece = null;
+//       return;
+//     }
+//     // Image position relative to viewport
+//     const imageRect = draggedPiece.getBoundingClientRect();
+//     initialLeft = imageRect.left;
+//     initialTop = imageRect.top;
+//     // Start dragging piece from click position
+//     offsetX = event.clientX - initialLeft;
+//     offsetY = event.clientY - initialTop;
+// });
+
+// board.addEventListener('pointermove', (event) => {
+//   if (draggedPiece) {
+
+//     console.log(event.clientX, event.clientY);
+//     // leftShift = event.clientX - leftPos;
+//     // topShift = event.clientY - topPos;
+
+//     draggedPiece.style.transform = `translate(${event.clientX - initialLeft - offsetX}px, ${event.clientY - initialTop - offsetY}px)`;
+//   }
+// });
+// board.addEventListener('pointerup', (event) => {
+//     // finish the drag
+// });

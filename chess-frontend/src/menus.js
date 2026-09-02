@@ -2,16 +2,16 @@ export function showPromotionMenu(turn) {
   const promotionMenu = document.querySelector('.promotion-menu');
   promotionMenu.innerHTML = '';
   const bishop = document.createElement('img');
-  bishop.src = `src/assets/b${turn}.svg`;
+  bishop.src = `/pieces/b${turn}.svg`;
   bishop.dataset.piece = "b";
   const knight = document.createElement('img');
-  knight.src = `src/assets/n${turn}.svg`;
+  knight.src = `/pieces/n${turn}.svg`;
   knight.dataset.piece = "n";
   const rook = document.createElement('img');
-  rook.src = `src/assets/r${turn}.svg`;
+  rook.src = `/pieces/r${turn}.svg`;
   rook.dataset.piece = "r";
   const queen = document.createElement('img');
-  queen.src = `src/assets/q${turn}.svg`;
+  queen.src = `/pieces/q${turn}.svg`;
   queen.dataset.piece = "q";
 
   promotionMenu.appendChild(bishop);
