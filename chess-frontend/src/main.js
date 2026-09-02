@@ -30,6 +30,7 @@ let currentSelect = null;
 let currentPieceImg = null;
 let validMoves = [];
 let gameOver = false;
+let lastMove = null;
 
 board.addEventListener('click', async (event) => {
   if (gameOver) {
@@ -60,7 +61,7 @@ board.addEventListener('click', async (event) => {
       const fromRow = Number(currentSelect.dataset.row);
       const fromCol = Number(currentSelect.dataset.col);
       // Get all valid moves
-      validMoves = getValidMoves(currentBoard, fromRow, fromCol, turn);
+      validMoves = getValidMoves(currentBoard, fromRow, fromCol, turn, lastMove);
       showValidMoves(validMoves);
     }
   }
@@ -87,6 +88,15 @@ board.addEventListener('click', async (event) => {
     if (newPieceImg === null) {
       // Move piece to selected square
       if (validMoves.some(move => move.row === toRow && move.col == toCol)) {
+
+        // Update last move
+        lastMove = {
+          from: { row: fromRow, col: fromCol },
+          to: { row: toRow, col: toCol },
+          type: currentBoard[fromRow][fromCol].type
+        };
+        console.log("Last move:", lastMove);
+
         // Remove highlight
         currentSelect.classList.remove('selected');
 
@@ -96,6 +106,15 @@ board.addEventListener('click', async (event) => {
 
         // Check if castling (king moves 2 squares)
         const isCastling = currentBoard[fromRow][fromCol]?.type === 'k' && (fromRow === toRow && Math.abs(fromCol - toCol) === 2);
+
+        // Check if en passant (pawn moves diagonally into empty square)
+        const isEnPassant = Math.abs(fromCol - toCol === 1);
+
+        if (isEnPassant) {
+          // Remove the previous pawn (same row as passing pawn, )
+          const passedPawnImg = document.querySelector(`.square[data-row="${fromRow}"][data-col="${toCol}"] img`); 
+          passedPawnImg.remove();
+        }
         
         //TODO How will updateBoard work when two moves are made during castling or during pawn promotion?
         // Update board state
@@ -120,7 +139,7 @@ board.addEventListener('click', async (event) => {
           const promotedPiece = await showPromotionMenu(turn);
           currentBoard[toRow][toCol].type = promotedPiece;
           newSelect.querySelector('img').src = `src/assets/${promotedPiece + turn}.svg`;
-          }
+        }
 
         // Castling
         if (isCastling) {
@@ -159,6 +178,7 @@ board.addEventListener('click', async (event) => {
           turn = 'w';
           document.querySelector('h1').textContent = "White's turn to move"
         }
+      
 
         // Update board history
         boardHistory.push(currentBoard);
@@ -180,10 +200,18 @@ board.addEventListener('click', async (event) => {
       }
     }
 
-    //TODO Refactor to use fromRow fromCol and toRow toCol
     // Opponent piece - capture if possible
-    else if (newPieceImg !== null && currentBoard[newSelect.dataset.row][newSelect.dataset.col].color !== currentBoard[currentSelect.dataset.row][currentSelect.dataset.col].color) {
+    else if (newPieceImg !== null && currentBoard[toRow][toCol].color !== currentBoard[fromRow][fromCol].color) {
       if (validMoves.some(move => move.row === toRow && move.col == toCol)) {
+
+        // Update last move
+        lastMove = {
+          from: { row: fromRow, col: fromCol },
+          to: { row: toRow, col: toCol },
+          type: currentBoard[fromRow][fromCol].type
+        };
+
+        console.log("Last move:", lastMove);
         // Remove highlight
         currentSelect.classList.remove('selected');
 
@@ -192,7 +220,7 @@ board.addEventListener('click', async (event) => {
         const destinationRect = newSelect.getBoundingClientRect();
 
         // Update board state
-        currentBoard = updateBoard(currentBoard, Number(currentSelect.dataset.row), Number(currentSelect.dataset.col), { row: toRow, col: toCol });
+        currentBoard = updateBoard(currentBoard, fromRow, fromCol, { row: toRow, col: toCol });
 
         // Update DOM
         newPieceImg.remove();
@@ -209,9 +237,9 @@ board.addEventListener('click', async (event) => {
         });
 
         // Check for pawn promotion
-        if (currentBoard[newSelect.dataset.row][newSelect.dataset.col].type === 'p' && (toRow === 0 || toRow === 7)) {
+        if (currentBoard[toRow][toCol].type === 'p' && (toRow === 0 || toRow === 7)) {
           const promotedPiece = await showPromotionMenu(turn);
-          currentBoard[newSelect.dataset.row][newSelect.dataset.col].type = promotedPiece;
+          currentBoard[toRow][toCol].type = promotedPiece;
           newSelect.querySelector('img').src = `src/assets/${promotedPiece + turn}.svg`;
         }
         
@@ -251,10 +279,9 @@ board.addEventListener('click', async (event) => {
       newSelect.classList.add('selected');
       currentSelect = newSelect;
       currentPieceImg = currentSelect.querySelector('img');
-      const fromRow = Number(currentSelect.dataset.row);
-      const fromCol = Number(currentSelect.dataset.col);
+
       // Get all valid moves
-      validMoves = getValidMoves(currentBoard, fromRow, fromCol, turn);
+      validMoves = getValidMoves(currentBoard, toRow, toCol, turn, lastMove);
       console.log(validMoves);
       showValidMoves(validMoves);
       return;

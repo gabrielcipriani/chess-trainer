@@ -16,8 +16,6 @@ const PIECE_NAMES = {
 
 export function getPseudoLegalMoves(boardState, fromRow, fromCol) {
   const piece = boardState[fromRow][fromCol];
-  console.log(piece)
-  console.log(`fromRow: ${fromRow}, fromCol: ${fromCol}`)
   const validMoves = [];
 
   // Sliding pieces (rook, bishop, queen)
@@ -35,11 +33,9 @@ export function getPseudoLegalMoves(boardState, fromRow, fromCol) {
         if (toRow < 0 || toRow >= 8 || toCol < 0 || toCol >= 8) {
           break;
         }
-        console.log(`toRow: ${toRow}, toCol: ${toCol}`)
         // Stop at own piece, do not give square as a valid move
         if (boardState[toRow][toCol] !== null) {
           if (boardState[toRow][toCol].color === piece.color) {
-            console.log(`Encountered own piece at (${toRow}, ${toCol}), stopping in this direction.`)
             break;
           }
           // Stop at opponent, give square as a valid move (capture)
@@ -53,7 +49,6 @@ export function getPseudoLegalMoves(boardState, fromRow, fromCol) {
         else {
           validMoves.push({ row: toRow, col: toCol });
         }
-      console.log(`Moves added so far: ${validMoves.map(move => `(${move.row}, ${move.col})`).join(', ')}`)
       }
     } 
   }
@@ -69,15 +64,15 @@ export function getPseudoLegalMoves(boardState, fromRow, fromCol) {
       if (toRow < 0 || toRow >= 8 || toCol < 0 || toCol >= 8) {
         continue;
       }
-      console.log(`toRow: ${toRow}, toCol: ${toCol}`)
       // Stop at own piece, do not give square as a valid move
       if (boardState[toRow][toCol] !== null) {
         if (boardState[toRow][toCol].color === piece.color) {
-          console.log(`Encountered own piece at (${toRow}, ${toCol}), stopping in this direction.`)
+          continue;
         }
         // Stop at opponent, give square as a valid move (capture)
         else if (boardState[toRow][toCol].color !== piece.color) {
           validMoves.push({ row: toRow, col: toCol });
+          continue;
         }
       }
       else {

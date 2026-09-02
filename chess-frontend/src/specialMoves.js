@@ -47,6 +47,6 @@ export function getCastlingMoves(board, turn) {
   return validCastlingMoves;
 }
 
-export function enPassant() {
+export function getEnPassantMoves() {
 
 }
