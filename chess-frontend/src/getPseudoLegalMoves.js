@@ -14,8 +14,8 @@ const PIECE_NAMES = {
   k: "KING",
 };
 
-export function getPseudoLegalMoves(boardState, fromRow, fromCol) {
-  const piece = boardState[fromRow][fromCol];
+export function getPseudoLegalMoves(board, fromRow, fromCol) {
+  const piece = board[fromRow][fromCol];
   const validMoves = [];
 
   // Sliding pieces (rook, bishop, queen)
@@ -34,12 +34,12 @@ export function getPseudoLegalMoves(boardState, fromRow, fromCol) {
           break;
         }
         // Stop at own piece, do not give square as a valid move
-        if (boardState[toRow][toCol] !== null) {
-          if (boardState[toRow][toCol].color === piece.color) {
+        if (board[toRow][toCol] !== null) {
+          if (board[toRow][toCol].color === piece.color) {
             break;
           }
           // Stop at opponent, give square as a valid move (capture)
-          else if (boardState[toRow][toCol].color !== piece.color) {
+          else if (board[toRow][toCol].color !== piece.color) {
             validMoves.push({ row: toRow, col: toCol });
             break;
           }
@@ -65,12 +65,12 @@ export function getPseudoLegalMoves(boardState, fromRow, fromCol) {
         continue;
       }
       // Stop at own piece, do not give square as a valid move
-      if (boardState[toRow][toCol] !== null) {
-        if (boardState[toRow][toCol].color === piece.color) {
+      if (board[toRow][toCol] !== null) {
+        if (board[toRow][toCol].color === piece.color) {
           continue;
         }
         // Stop at opponent, give square as a valid move (capture)
-        else if (boardState[toRow][toCol].color !== piece.color) {
+        else if (board[toRow][toCol].color !== piece.color) {
           validMoves.push({ row: toRow, col: toCol });
           continue;
         }
@@ -87,13 +87,13 @@ export function getPseudoLegalMoves(boardState, fromRow, fromCol) {
     const singleStep = fromRow + direction;
     if (singleStep >= 0 && singleStep < 8) {
       // Check first square ahead is empty
-      if (boardState[singleStep][fromCol] === null) {
+      if (board[singleStep][fromCol] === null) {
         validMoves.push({ row: singleStep, col: fromCol });
         // Then check if double step is possible
         if (!piece.hasMoved) {
           const doubleStep = fromRow + direction * 2;
           if (doubleStep >= 0 && doubleStep < 8) {
-            if (boardState[doubleStep][fromCol] === null) {
+            if (board[doubleStep][fromCol] === null) {
               validMoves.push({ row: doubleStep, col: fromCol });
             }
           }
@@ -105,8 +105,8 @@ export function getPseudoLegalMoves(boardState, fromRow, fromCol) {
       let toCol = fromCol + dir[1];
       if (toRow >= 0 && toRow < 8 && toCol >= 0 && toCol < 8) {
         // Check if square occupied
-        if (boardState[toRow][toCol] !== null) {
-          if (boardState[toRow][toCol].color !== piece.color) {
+        if (board[toRow][toCol] !== null) {
+          if (board[toRow][toCol].color !== piece.color) {
             validMoves.push({ row: toRow, col: toCol });
           }
         }

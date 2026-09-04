@@ -37,7 +37,7 @@ export function getCastlingMoves(board, turn) {
       currentBoard = updateBoard(currentBoard, row, 4, { row: row, col: 3 });
       if (!isKingInCheck(currentBoard, turn)) {
         // Step 2
-        currentBoard = updateBoard(currentBoard, row, 5, { row: row, col: 2 });
+        currentBoard = updateBoard(currentBoard, row, 3, { row: row, col: 2 });
         if (!isKingInCheck(currentBoard, turn)) {
           validCastlingMoves.push(queensideCastle);
         }
@@ -45,8 +45,4 @@ export function getCastlingMoves(board, turn) {
     }
   }
   return validCastlingMoves;
-}
-
-export function getEnPassantMoves() {
-
 }

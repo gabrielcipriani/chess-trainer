@@ -8,6 +8,7 @@ import { showStalemateMenu } from "./menus.js";
 import { updateBoard } from "./updateBoard.js";
 import { isKingInCheck } from "./isKingInCheck.js";
 import { playerHasLegalMove } from "./playerHasLegalMove.js";
+import { animateMove, movePiece } from "./moveHandler.js";
 
 // Copy of starting board state
 let currentBoard = structuredClone(boardState);
@@ -84,197 +85,91 @@ board.addEventListener('click', async (event) => {
       return;
     }
 
-    // No piece on targeted square
-    if (newPieceImg === null) {
-      // Move piece to selected square
-      if (validMoves.some(move => move.row === toRow && move.col == toCol)) {
+    // Move piece to selected square
+    if (validMoves.some(move => move.row === toRow && move.col == toCol)) {
 
-        // Update last move
-        lastMove = {
-          from: { row: fromRow, col: fromCol },
-          to: { row: toRow, col: toCol },
-          type: currentBoard[fromRow][fromCol].type
-        };
-        console.log("Last move:", lastMove);
+      const result = movePiece(currentBoard, fromRow, fromCol, toRow, toCol, lastMove);
+      currentBoard = result.newBoard;
+      lastMove = result.newLastMove;
 
-        // Remove highlight
-        currentSelect.classList.remove('selected');
-
-        // Measure origin and destination squares
-        const originRect = currentSelect.getBoundingClientRect();
-        const destinationRect = newSelect.getBoundingClientRect();
-
-        // Check if castling (king moves 2 squares)
-        const isCastling = currentBoard[fromRow][fromCol]?.type === 'k' && (fromRow === toRow && Math.abs(fromCol - toCol) === 2);
-
-        // Check if en passant (pawn moves diagonally into empty square)
-        const isEnPassant = lastMove.type === 'p' && currentBoard[fromRow][fromCol].type === 'p' && Math.abs(fromCol - toCol === 1);
-
-        if (isEnPassant) {
-          // Remove the previous pawn (same row as passing pawn, )
-          const passedPawnImg = document.querySelector(`.square[data-row="${fromRow}"][data-col="${toCol}"] img`); 
-          passedPawnImg.remove();
-        }
-        
-        //TODO How will updateBoard work when two moves are made during castling or during pawn promotion?
-        // Update board state
-        currentBoard = updateBoard(currentBoard, fromRow, fromCol, { row: toRow, col: toCol });
-
-        // Update DOM
-        currentSelect = null;
-        newSelect.appendChild(currentPieceImg);
-
-        // Animate move
-        const x = originRect.left - destinationRect.left;
-        const y = originRect.top - destinationRect.top;
-        currentPieceImg.style.transform = `translate(${x}px, ${y}px)`;
-
-        requestAnimationFrame(() => {
-          currentPieceImg.style.transition = 'transform 0.3s';
-          currentPieceImg.style.transform = 'translate(0, 0)';
-        });
-        
-        // Check for pawn promotion
-        if (currentBoard[toRow][toCol].type === 'p' && (toRow === 0 || toRow === 7)) {
-          const promotedPiece = await showPromotionMenu(turn);
-          currentBoard[toRow][toCol].type = promotedPiece;
-          newSelect.querySelector('img').src = `/pieces/${promotedPiece + turn}.svg`;
-        }
-
-        // Castling
-        if (isCastling) {
-          // Determine rook row based on turn
-          const rookRow = turn === 'w' ? 7 : 0;
-          // Kingside castle
-          if (toCol === 6) {
-            // Update board for rook move
-            currentBoard = updateBoard(currentBoard, rookRow, 7, { row: rookRow, col: 5 });
-            // Update DOM
-            const rookSquareFrom = document.querySelector(`.square[data-row="${rookRow}"][data-col="7"]`);
-            const rookImg = rookSquareFrom.querySelector('img');
-            const rookSquareTo = document.querySelector(`.square[data-row="${rookRow}"][data-col="5"]`);
-            rookSquareTo.appendChild(rookImg);
-
-          }
-          // Queenside castle
-          else if (toCol === 2) { 
-            // Update board for rook move
-            currentBoard = updateBoard(currentBoard, rookRow, 0, { row: rookRow, col: 3 });
-            // Update DOM
-            const rookSquareFrom = document.querySelector(`.square[data-row="${rookRow}"][data-col="0"]`);
-            const rookImg = rookSquareFrom.querySelector('img');
-            const rookSquareTo = document.querySelector(`.square[data-row="${rookRow}"][data-col="3"]`);
-            rookSquareTo.appendChild(rookImg);
-          }
-        }
-  
-        // Switch turn
-        halfmoves += 1;
-        if (turn === 'w') {
-          turn = 'b';
-          document.querySelector('h1').textContent = "Black's turn"
-        }
-        else {
-          turn = 'w';
-          document.querySelector('h1').textContent = "White's turn"
-        }
-      
-
-        // Update board history
-        boardHistory.push(currentBoard);
-
-        // Check if checkmate or stalemate
-        if (!playerHasLegalMove(currentBoard, turn) && isKingInCheck(currentBoard, turn)) {
-          showCheckmateMenu();
-        }
-        else if (!playerHasLegalMove(currentBoard, turn) && !isKingInCheck(currentBoard, turn)) {
-          showStalemateMenu();
-        }
-        currentSelect = null;
-      }
-      // Invalid move
-      else {
-        currentSelect.classList.remove('selected');
-        currentSelect = null;
-        return;
-      }
-    }
-
-    // Opponent piece - capture if possible
-    else if (newPieceImg !== null && currentBoard[toRow][toCol].color !== currentBoard[fromRow][fromCol].color) {
-      if (validMoves.some(move => move.row === toRow && move.col == toCol)) {
-
-        // Update last move
-        lastMove = {
-          from: { row: fromRow, col: fromCol },
-          to: { row: toRow, col: toCol },
-          type: currentBoard[fromRow][fromCol].type
-        };
-
-        console.log("Last move:", lastMove);
-        // Remove highlight
-        currentSelect.classList.remove('selected');
-
-        // Measure origin and destination squares
-        const originRect = currentSelect.getBoundingClientRect();
-        const destinationRect = newSelect.getBoundingClientRect();
-
-        // Update board state
-        currentBoard = updateBoard(currentBoard, fromRow, fromCol, { row: toRow, col: toCol });
-
-        // Update DOM
+      // Update DOM
+      // Remove highlight
+      currentSelect.classList.remove('selected');
+      // Remove captured image
+      if (newPieceImg) {
         newPieceImg.remove();
-        newSelect.appendChild(currentPieceImg);
-
-        // Animate move
-        const x = originRect.left - destinationRect.left;
-        const y = originRect.top - destinationRect.top;
-        currentPieceImg.style.transform = `translate(${x}px, ${y}px)`;
-
-        requestAnimationFrame(() => {
-          currentPieceImg.style.transition = 'transform 0.3s';
-          currentPieceImg.style.transform = 'translate(0, 0)';
-        });
-
-        // Check for pawn promotion
-        if (currentBoard[toRow][toCol].type === 'p' && (toRow === 0 || toRow === 7)) {
-          const promotedPiece = await showPromotionMenu(turn);
-          currentBoard[toRow][toCol].type = promotedPiece;
-          newSelect.querySelector('img').src = `/pieces/${promotedPiece + turn}.svg`;
-        }
-        
-        // Switch turn
-        halfmoves += 1;
-        if (turn === 'w') {
-          turn = 'b';
-          document.querySelector('h1').textContent = "Black's turn"
-        }
-        else {
-          turn = 'w';
-          document.querySelector('h1').textContent = "White's turn"
-        }
-
-        // Update board state
-        boardHistory.push(currentBoard);
-
-        // Check if checkmate or stalemate
-        if (!playerHasLegalMove(currentBoard, turn) && isKingInCheck(currentBoard, turn)) {
-          showCheckmateMenu();
-        }
-        else if (!playerHasLegalMove(currentBoard, turn) && !isKingInCheck(currentBoard, turn)) {
-          showStalemateMenu();
-        }
-        currentSelect = null;
       }
-      // Invalid move
+      newSelect.appendChild(currentPieceImg);
+
+      // Animate move
+      animateMove(currentPieceImg, currentSelect, newSelect);
+
+      if (result.isEnPassant) {
+        console.log('En passant move detected');
+        // Remove the previous pawn (same row as passing pawn)
+        const passedPawnImg = document.querySelector(`.square[data-row="${fromRow}"][data-col="${toCol}"] img`); 
+        passedPawnImg.remove();
+      }
+
+      if (result.isPromotion) {
+        const promotedPiece = await showPromotionMenu(turn);
+        currentBoard[toRow][toCol].type = promotedPiece;
+        newSelect.querySelector('img').src = `/pieces/${promotedPiece + turn}.svg`;
+      }
+
+
+      if (result.isCastling) {
+        // Determine rook row based on turn
+        const rookRow = turn === 'w' ? 7 : 0;
+        // Kingside castle
+        if (toCol === 6) {
+          // Update board for rook move
+          currentBoard = updateBoard(currentBoard, rookRow, 7, { row: rookRow, col: 5 });
+          // Update DOM
+          const rookSquareFrom = document.querySelector(`.square[data-row="${rookRow}"][data-col="7"]`);
+          const rookImg = rookSquareFrom.querySelector('img');
+          const rookSquareTo = document.querySelector(`.square[data-row="${rookRow}"][data-col="5"]`);
+          rookSquareTo.appendChild(rookImg);
+
+        }
+        // Queenside castle
+        else if (toCol === 2) { 
+          // Update board for rook move
+          currentBoard = updateBoard(currentBoard, rookRow, 0, { row: rookRow, col: 3 });
+          // Update DOM
+          const rookSquareFrom = document.querySelector(`.square[data-row="${rookRow}"][data-col="0"]`);
+          const rookImg = rookSquareFrom.querySelector('img');
+          const rookSquareTo = document.querySelector(`.square[data-row="${rookRow}"][data-col="3"]`);
+          rookSquareTo.appendChild(rookImg);
+        }
+      }
+
+      // Switch turns
+      halfmoves += 1;
+      if (turn === 'w') {
+        turn = 'b';
+        document.querySelector('h1').textContent = "Black's turn"
+      }
       else {
-        currentSelect.classList.remove('selected');
-        currentSelect = null;
-        return;
+        turn = 'w';
+        document.querySelector('h1').textContent = "White's turn"
       }
+    
+      // Update board history
+      boardHistory.push(currentBoard);
+
+      // Check if checkmate or stalemate
+      if (!playerHasLegalMove(currentBoard, turn) && isKingInCheck(currentBoard, turn)) {
+        showCheckmateMenu();
+      }
+      else if (!playerHasLegalMove(currentBoard, turn) && !isKingInCheck(currentBoard, turn)) {
+        showStalemateMenu();
+      }
+      currentSelect = null;
     }
+
     // Same color piece - switch selection
-    else {
+    else if (currentBoard[toRow][toCol]?.color === turn) {
       currentSelect.classList.remove('selected');
       newSelect.classList.add('selected');
       currentSelect = newSelect;
@@ -282,14 +177,24 @@ board.addEventListener('click', async (event) => {
 
       // Get all valid moves
       validMoves = getValidMoves(currentBoard, toRow, toCol, turn, lastMove);
-      console.log(validMoves);
       showValidMoves(validMoves);
+      return;
+    }
+
+    // Invalid move
+    else {
+      currentSelect.classList.remove('selected');
+      currentSelect = null;
       return;
     }
   }
 });
 
+// let isDragging = false;
+// let dragStartX = null;
+// let dragStartY = null;
 // let draggedPiece = null;
+// let startSquare = null;
 // let initialLeft = null;
 // let initialTop = null;
 // let offsetX = null;
@@ -299,12 +204,14 @@ board.addEventListener('click', async (event) => {
 //     draggedPiece = event.target.closest('img');
 //     if (!draggedPiece) return;
 
-//     const square = event.target.closest('.square');
-//     const fromRow = Number(square.dataset.row);
-//     const fromCol = Number(square.dataset.col);
+//     startSquare = event.target.closest('.square');
+//     const fromRow = Number(startSquare.dataset.row);
+//     const fromCol = Number(startSquare.dataset.col);
 //     const pieceColor = currentBoard[fromRow][fromCol].color;
+
 //     if (pieceColor !== turn) {
 //       draggedPiece = null;
+//       startSquare = null;
 //       return;
 //     }
 //     // Image position relative to viewport
@@ -327,5 +234,18 @@ board.addEventListener('click', async (event) => {
 //   }
 // });
 // board.addEventListener('pointerup', (event) => {
-//     // finish the drag
+//   // check if square is the same as start square, if so reset 
+//   const targetSquare = event.target.closest('.square');
+//   if (targetSquare === startSquare) {
+//     draggedPiece.style.transform = '';
+//   }
+//   else if (true) {
+
+//   }
+//   else {
+//   }
+//   // if valid square move there, if not valid again reset to start
+//   // finish the drag
+//   draggedPiece = null;
+//   startSquare = null;
 // });
