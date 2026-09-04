@@ -1,7 +1,7 @@
-import { isKingInCheck } from "./isKingInCheck.js";
-import { updateBoard } from "./updateBoard.js";
-import { getPseudoLegalMoves } from "./getPseudoLegalMoves.js";
-import { getCastlingMoves } from "./specialMoves.js";
+import { isKingInCheck } from './isKingInCheck.js';
+import { updateBoard } from './updateBoard.ts';
+import { getPseudoLegalMoves } from './getPseudoLegalMoves.js';
+import { getCastlingMoves } from './specialMoves.js';
 
 /**
  * Returns an array of valid moves for a piece at (fromRow, fromCol).
@@ -11,7 +11,7 @@ export function getValidMoves(board, fromRow, fromCol, turn, lastMove) {
   const pseudoLegalMoves = getPseudoLegalMoves(board, fromRow, fromCol);
   const validMoves = [];
   for (const move of pseudoLegalMoves) {
-    const futureBoard = updateBoard(board, fromRow, fromCol, move)
+    const futureBoard = updateBoard(board, fromRow, fromCol, move);
     if (!isKingInCheck(futureBoard, turn)) {
       validMoves.push(move);
     }
@@ -21,7 +21,7 @@ export function getValidMoves(board, fromRow, fromCol, turn, lastMove) {
   if (currentPiece.type === 'k') {
     const castlingMoves = getCastlingMoves(board, turn);
     if (castlingMoves) {
-      validMoves.push(...castlingMoves)
+      validMoves.push(...castlingMoves);
     }
   }
   // En passant check
@@ -29,11 +29,16 @@ export function getValidMoves(board, fromRow, fromCol, turn, lastMove) {
   // check if opponent pawn piece left or right matching fromRow fromCol,
   // add square behind to valid moves (en passant)
 
-  if (currentPiece.type === 'p' && lastMove?.type === 'p' && Math.abs(lastMove.from.row - lastMove.to.row) === 2 && fromRow === lastMove.to.row && Math.abs(fromCol - lastMove.to.col) === 1) {
+  if (
+    currentPiece.type === 'p' &&
+    lastMove?.type === 'p' &&
+    Math.abs(lastMove.from.row - lastMove.to.row) === 2 &&
+    fromRow === lastMove.to.row &&
+    Math.abs(fromCol - lastMove.to.col) === 1
+  ) {
     if (turn === 'w') {
       validMoves.push({ row: lastMove.from.row + 1, col: lastMove.from.col });
-    }
-    else {
+    } else {
       validMoves.push({ row: lastMove.from.row - 1, col: lastMove.from.col });
     }
   }

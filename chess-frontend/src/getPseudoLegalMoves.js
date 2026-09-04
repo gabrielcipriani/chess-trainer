@@ -1,17 +1,54 @@
 export const DIRECTIONS = {
-  ROOK: [[-1,0], [0,1], [1,0], [0,-1]],
-  BISHOP: [[-1,-1], [-1,1], [1,1], [1,-1]],
-  QUEEN: [[-1,0], [0,1], [1,0], [0,-1], [-1,-1], [-1,1], [1,1], [1,-1]],
-  KNIGHT: [[-2,-1], [-2,1], [-1,-2], [-1,2], [1,-2], [1,2], [2,-1], [2,1]],
-  KING: [[-1,0], [0,1], [1,0], [0,-1], [-1,-1], [-1,1], [1,1], [1,-1]],
+  ROOK: [
+    [-1, 0],
+    [0, 1],
+    [1, 0],
+    [0, -1],
+  ],
+  BISHOP: [
+    [-1, -1],
+    [-1, 1],
+    [1, 1],
+    [1, -1],
+  ],
+  QUEEN: [
+    [-1, 0],
+    [0, 1],
+    [1, 0],
+    [0, -1],
+    [-1, -1],
+    [-1, 1],
+    [1, 1],
+    [1, -1],
+  ],
+  KNIGHT: [
+    [-2, -1],
+    [-2, 1],
+    [-1, -2],
+    [-1, 2],
+    [1, -2],
+    [1, 2],
+    [2, -1],
+    [2, 1],
+  ],
+  KING: [
+    [-1, 0],
+    [0, 1],
+    [1, 0],
+    [0, -1],
+    [-1, -1],
+    [-1, 1],
+    [1, 1],
+    [1, -1],
+  ],
 };
 
 const PIECE_NAMES = {
-  r: "ROOK",
-  b: "BISHOP",
-  q: "QUEEN",
-  n: "KNIGHT",
-  k: "KING",
+  r: 'ROOK',
+  b: 'BISHOP',
+  q: 'QUEEN',
+  n: 'KNIGHT',
+  k: 'KING',
 };
 
 export function getPseudoLegalMoves(board, fromRow, fromCol) {
@@ -43,16 +80,14 @@ export function getPseudoLegalMoves(board, fromRow, fromCol) {
             validMoves.push({ row: toRow, col: toCol });
             break;
           }
-
         }
         // Empty square, add to valid moves
         else {
           validMoves.push({ row: toRow, col: toCol });
         }
       }
-    } 
-  }
-  else if (piece.type === 'n' || piece.type === 'k') {
+    }
+  } else if (piece.type === 'n' || piece.type === 'k') {
     const directions = DIRECTIONS[PIECE_NAMES[piece.type]];
     for (const dir of directions) {
       // Start from selected piece
@@ -74,16 +109,23 @@ export function getPseudoLegalMoves(board, fromRow, fromCol) {
           validMoves.push({ row: toRow, col: toCol });
           continue;
         }
-      }
-      else {
+      } else {
         // Empty square, add to valid moves
         validMoves.push({ row: toRow, col: toCol });
       }
     }
-  }
-  else if (piece.type === 'p') {
+  } else if (piece.type === 'p') {
     const direction = piece.color === 'w' ? -1 : 1;
-    const diagonal = piece.color === 'w' ? [[-1,-1], [-1,1]] : [[1,-1], [1,1]];
+    const diagonal =
+      piece.color === 'w'
+        ? [
+            [-1, -1],
+            [-1, 1],
+          ]
+        : [
+            [1, -1],
+            [1, 1],
+          ];
     const singleStep = fromRow + direction;
     if (singleStep >= 0 && singleStep < 8) {
       // Check first square ahead is empty
@@ -115,4 +157,3 @@ export function getPseudoLegalMoves(board, fromRow, fromCol) {
   }
   return validMoves;
 }
-

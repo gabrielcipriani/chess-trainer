@@ -1,6 +1,16 @@
 const DIRECTIONS = {
-  FILE: [[-1,0], [0,1], [1,0], [0,-1]],
-  DIAGONAL: [[-1,-1], [-1,1], [1,1], [1,-1]]
+  FILE: [
+    [-1, 0],
+    [0, 1],
+    [1, 0],
+    [0, -1],
+  ],
+  DIAGONAL: [
+    [-1, -1],
+    [-1, 1],
+    [1, 1],
+    [1, -1],
+  ],
 };
 
 export function findPiece(board, turn, type) {
@@ -12,7 +22,7 @@ export function findPiece(board, turn, type) {
     }
   }
   return null;
-};
+}
 
 export function isKingInCheck(board, turn) {
   const [kingRow, kingCol] = findPiece(board, turn, 'k');
@@ -35,7 +45,9 @@ export function isKingInCheck(board, turn) {
   // Check for pawns ahead in diagonals
   const pawnRow = turn === 'w' ? kingRow - 1 : kingRow + 1;
   if (pawnRow >= 0 && pawnRow < 8) {
-    const pawnCols = [kingCol - 1, kingCol + 1].filter(col => col >= 0 && col <= 7);
+    const pawnCols = [kingCol - 1, kingCol + 1].filter(
+      (col) => col >= 0 && col <= 7,
+    );
     for (const col of pawnCols) {
       let piece = board[pawnRow][col];
       if (piece && piece.type === 'p' && piece.color !== turn) {
@@ -45,14 +57,16 @@ export function isKingInCheck(board, turn) {
   }
 
   // Check if square covered by enemy knight
-  let knightSquares = [[kingRow-2, kingCol-1],
-  [kingRow-1, kingCol-2],
-  [kingRow+1, kingCol-2],
-  [kingRow+2, kingCol-1],
-  [kingRow+2, kingCol+1],
-  [kingRow+1, kingCol+2],
-  [kingRow-1, kingCol+2],
-  [kingRow-2, kingCol+1]];
+  let knightSquares = [
+    [kingRow - 2, kingCol - 1],
+    [kingRow - 1, kingCol - 2],
+    [kingRow + 1, kingCol - 2],
+    [kingRow + 2, kingCol - 1],
+    [kingRow + 2, kingCol + 1],
+    [kingRow + 1, kingCol + 2],
+    [kingRow - 1, kingCol + 2],
+    [kingRow - 2, kingCol + 1],
+  ];
   for (const [row, col] of knightSquares) {
     if (row >= 0 && row < 8 && col >= 0 && col < 8) {
       let piece = board[row][col];
@@ -62,7 +76,7 @@ export function isKingInCheck(board, turn) {
     }
   }
 
-  // Check files for queen or rooks 
+  // Check files for queen or rooks
   const files = DIRECTIONS.FILE;
   for (const dir of files) {
     // Start from selected piece
@@ -82,15 +96,17 @@ export function isKingInCheck(board, turn) {
           break;
         }
         // Stop at opponent's piece; in check if occupied by rook or queen
-        else if (board[toRow][toCol].type === 'r' || board[toRow][toCol].type === 'q') {
+        else if (
+          board[toRow][toCol].type === 'r' ||
+          board[toRow][toCol].type === 'q'
+        ) {
           return true;
-        }
-        else {
+        } else {
           break;
         }
       }
     }
-  } 
+  }
 
   // Check diagonals for queen or bishops
   const diagonals = DIRECTIONS.DIAGONAL;
@@ -112,14 +128,16 @@ export function isKingInCheck(board, turn) {
           break;
         }
         // Stop at opponent's piece; in check if occupied by bishop or queen
-        else if (board[toRow][toCol].type === 'b' || board[toRow][toCol].type === 'q') {
+        else if (
+          board[toRow][toCol].type === 'b' ||
+          board[toRow][toCol].type === 'q'
+        ) {
           return true;
-        }
-        else {
+        } else {
           break;
         }
       }
     }
-  } 
+  }
   return inCheck;
 }

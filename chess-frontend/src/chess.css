@@ -8,13 +8,13 @@ body {
 
 .game-container {
   display: grid;
-  grid-template-areas: "overlay";
+  grid-template-areas: 'overlay';
 }
 
 h1 {
-    color: white;
-    text-align: center;
-    user-select: none;
+  color: white;
+  text-align: center;
+  user-select: none;
 }
 
 .promotion-menu {
@@ -29,12 +29,12 @@ h1 {
   align-items: center;
   justify-self: center;
   align-self: center;
-  z-index: 10; 
+  z-index: 10;
 }
 
 .promotion-menu img {
-    width: 90px;
-    height: 90px;
+  width: 90px;
+  height: 90px;
 }
 
 .checkmate-menu {

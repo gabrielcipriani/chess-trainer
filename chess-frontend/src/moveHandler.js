@@ -1,18 +1,29 @@
-import { updateBoard } from "./updateBoard";
+import { updateBoard } from './updateBoard';
 
 export function movePiece(board, fromRow, fromCol, toRow, toCol, lastMove) {
   // Check if castling (king moves 2 squares)
-  const isCastling = board[fromRow][fromCol]?.type === 'k' && (fromRow === toRow && Math.abs(fromCol - toCol) === 2);
+  const isCastling =
+    board[fromRow][fromCol]?.type === 'k' &&
+    fromRow === toRow &&
+    Math.abs(fromCol - toCol) === 2;
   // Check if en passant (current pawn moves diagonally into empty square)
-  const isEnPassant = lastMove?.type === 'p' && board[fromRow][fromCol].type === 'p' && Math.abs(fromCol - toCol) === 1 && board[toRow][toCol] === null;
+  const isEnPassant =
+    lastMove?.type === 'p' &&
+    board[fromRow][fromCol].type === 'p' &&
+    Math.abs(fromCol - toCol) === 1 &&
+    board[toRow][toCol] === null;
   // Check for pawn promotion
-  const isPromotion = board[fromRow][fromCol].type === 'p' && (toRow === 0 || toRow === 7);
+  const isPromotion =
+    board[fromRow][fromCol].type === 'p' && (toRow === 0 || toRow === 7);
 
-  const newBoard = updateBoard(board, fromRow, fromCol, { row: toRow, col: toCol });
+  const newBoard = updateBoard(board, fromRow, fromCol, {
+    row: toRow,
+    col: toCol,
+  });
   const newLastMove = {
     from: { row: fromRow, col: fromCol },
     to: { row: toRow, col: toCol },
-    type: board[fromRow][fromCol].type
+    type: board[fromRow][fromCol].type,
   };
 
   return { newBoard, newLastMove, isCastling, isEnPassant, isPromotion };
@@ -30,5 +41,13 @@ export function animateMove(pieceImg, originSquare, destinationSquare) {
   requestAnimationFrame(() => {
     pieceImg.style.transition = 'transform 0.3s';
     pieceImg.style.transform = 'translate(0, 0)';
+  });
+
+  console.log({
+    pieceImg,
+    origin: originSquare.dataset,
+    destination: destinationSquare.dataset,
+    x,
+    y,
   });
 }

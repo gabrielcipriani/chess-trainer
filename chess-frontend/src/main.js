@@ -1,14 +1,14 @@
-import { createBoard } from "./createBoard.js"; 
-import { boardState } from "./boardState.js";
-import { getValidMoves } from "./getValidMoves.js";
-import { hideValidMoves, showValidMoves } from "./showValidMoves.js";
-import { showPromotionMenu } from "./menus.js";
-import { showCheckmateMenu } from "./menus.js";
-import { showStalemateMenu } from "./menus.js";
-import { updateBoard } from "./updateBoard.js";
-import { isKingInCheck } from "./isKingInCheck.js";
-import { playerHasLegalMove } from "./playerHasLegalMove.js";
-import { animateMove, movePiece } from "./moveHandler.js";
+import { createBoard } from './createBoard.js';
+import { boardState } from './boardState.js';
+import { getValidMoves } from './getValidMoves.js';
+import { hideValidMoves, showValidMoves } from './showValidMoves.js';
+import { showPromotionMenu } from './menus.js';
+import { showCheckmateMenu } from './menus.js';
+import { showStalemateMenu } from './menus.js';
+import { updateBoard } from './updateBoard.ts';
+import { isKingInCheck } from './isKingInCheck.js';
+import { playerHasLegalMove } from './playerHasLegalMove.js';
+import { animateMove, movePiece } from './moveHandler.js';
 
 // Copy of starting board state
 let currentBoard = structuredClone(boardState);
@@ -25,7 +25,7 @@ const board = document.querySelector('.board');
 
 // Player turns
 let turn = 'w';
-document.querySelector('h1').textContent = "White's turn"
+document.querySelector('h1').textContent = "White's turn";
 let halfmoves = 0;
 let currentSelect = null;
 let currentPieceImg = null;
@@ -38,7 +38,7 @@ board.addEventListener('click', async (event) => {
     return;
   }
   const newSelect = event.target.closest('.square');
-  console.log(newSelect)
+  console.log(newSelect);
 
   // Guard clause against invalid clicks
   if (newSelect === null) {
@@ -46,23 +46,29 @@ board.addEventListener('click', async (event) => {
   }
 
   hideValidMoves();
-  
+
   // No square currently selected: select initial square
   if (currentSelect === null) {
     if (newSelect.querySelector('img') === null) {
       return;
-    }
-    else if (currentBoard[newSelect.dataset.row][newSelect.dataset.col].color !== turn) {
+    } else if (
+      currentBoard[newSelect.dataset.row][newSelect.dataset.col].color !== turn
+    ) {
       return;
-    }
-    else {
+    } else {
       newSelect.classList.add('selected');
       currentSelect = newSelect;
       currentPieceImg = currentSelect.querySelector('img');
       const fromRow = Number(currentSelect.dataset.row);
       const fromCol = Number(currentSelect.dataset.col);
       // Get all valid moves
-      validMoves = getValidMoves(currentBoard, fromRow, fromCol, turn, lastMove);
+      validMoves = getValidMoves(
+        currentBoard,
+        fromRow,
+        fromCol,
+        turn,
+        lastMove,
+      );
       showValidMoves(validMoves);
     }
   }
@@ -86,9 +92,15 @@ board.addEventListener('click', async (event) => {
     }
 
     // Move piece to selected square
-    if (validMoves.some(move => move.row === toRow && move.col == toCol)) {
-
-      const result = movePiece(currentBoard, fromRow, fromCol, toRow, toCol, lastMove);
+    if (validMoves.some((move) => move.row === toRow && move.col == toCol)) {
+      const result = movePiece(
+        currentBoard,
+        fromRow,
+        fromCol,
+        toRow,
+        toCol,
+        lastMove,
+      );
       currentBoard = result.newBoard;
       lastMove = result.newLastMove;
 
@@ -107,16 +119,18 @@ board.addEventListener('click', async (event) => {
       if (result.isEnPassant) {
         console.log('En passant move detected');
         // Remove the previous pawn (same row as passing pawn)
-        const passedPawnImg = document.querySelector(`.square[data-row="${fromRow}"][data-col="${toCol}"] img`); 
+        const passedPawnImg = document.querySelector(
+          `.square[data-row="${fromRow}"][data-col="${toCol}"] img`,
+        );
         passedPawnImg.remove();
       }
 
       if (result.isPromotion) {
         const promotedPiece = await showPromotionMenu(turn);
         currentBoard[toRow][toCol].type = promotedPiece;
-        newSelect.querySelector('img').src = `/pieces/${promotedPiece + turn}.svg`;
+        newSelect.querySelector('img').src =
+          `/pieces/${promotedPiece + turn}.svg`;
       }
-
 
       if (result.isCastling) {
         // Determine rook row based on turn
@@ -124,22 +138,35 @@ board.addEventListener('click', async (event) => {
         // Kingside castle
         if (toCol === 6) {
           // Update board for rook move
-          currentBoard = updateBoard(currentBoard, rookRow, 7, { row: rookRow, col: 5 });
+          currentBoard = updateBoard(currentBoard, rookRow, 7, {
+            row: rookRow,
+            col: 5,
+          });
           // Update DOM
-          const rookSquareFrom = document.querySelector(`.square[data-row="${rookRow}"][data-col="7"]`);
+          const rookSquareFrom = document.querySelector(
+            `.square[data-row="${rookRow}"][data-col="7"]`,
+          );
           const rookImg = rookSquareFrom.querySelector('img');
-          const rookSquareTo = document.querySelector(`.square[data-row="${rookRow}"][data-col="5"]`);
+          const rookSquareTo = document.querySelector(
+            `.square[data-row="${rookRow}"][data-col="5"]`,
+          );
           rookSquareTo.appendChild(rookImg);
-
         }
         // Queenside castle
-        else if (toCol === 2) { 
+        else if (toCol === 2) {
           // Update board for rook move
-          currentBoard = updateBoard(currentBoard, rookRow, 0, { row: rookRow, col: 3 });
+          currentBoard = updateBoard(currentBoard, rookRow, 0, {
+            row: rookRow,
+            col: 3,
+          });
           // Update DOM
-          const rookSquareFrom = document.querySelector(`.square[data-row="${rookRow}"][data-col="0"]`);
+          const rookSquareFrom = document.querySelector(
+            `.square[data-row="${rookRow}"][data-col="0"]`,
+          );
           const rookImg = rookSquareFrom.querySelector('img');
-          const rookSquareTo = document.querySelector(`.square[data-row="${rookRow}"][data-col="3"]`);
+          const rookSquareTo = document.querySelector(
+            `.square[data-row="${rookRow}"][data-col="3"]`,
+          );
           rookSquareTo.appendChild(rookImg);
         }
       }
@@ -148,21 +175,25 @@ board.addEventListener('click', async (event) => {
       halfmoves += 1;
       if (turn === 'w') {
         turn = 'b';
-        document.querySelector('h1').textContent = "Black's turn"
-      }
-      else {
+        document.querySelector('h1').textContent = "Black's turn";
+      } else {
         turn = 'w';
-        document.querySelector('h1').textContent = "White's turn"
+        document.querySelector('h1').textContent = "White's turn";
       }
-    
+
       // Update board history
       boardHistory.push(currentBoard);
 
       // Check if checkmate or stalemate
-      if (!playerHasLegalMove(currentBoard, turn) && isKingInCheck(currentBoard, turn)) {
+      if (
+        !playerHasLegalMove(currentBoard, turn) &&
+        isKingInCheck(currentBoard, turn)
+      ) {
         showCheckmateMenu();
-      }
-      else if (!playerHasLegalMove(currentBoard, turn) && !isKingInCheck(currentBoard, turn)) {
+      } else if (
+        !playerHasLegalMove(currentBoard, turn) &&
+        !isKingInCheck(currentBoard, turn)
+      ) {
         showStalemateMenu();
       }
       currentSelect = null;
@@ -234,7 +265,7 @@ board.addEventListener('click', async (event) => {
 //   }
 // });
 // board.addEventListener('pointerup', (event) => {
-//   // check if square is the same as start square, if so reset 
+//   // check if square is the same as start square, if so reset
 //   const targetSquare = event.target.closest('.square');
 //   if (targetSquare === startSquare) {
 //     draggedPiece.style.transform = '';
