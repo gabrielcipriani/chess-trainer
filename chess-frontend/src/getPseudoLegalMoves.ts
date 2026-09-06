@@ -1,3 +1,5 @@
+import type { Board, Position } from "./types.ts";
+
 export const DIRECTIONS = {
   ROOK: [
     [-1, 0],
@@ -49,15 +51,18 @@ const PIECE_NAMES = {
   q: 'QUEEN',
   n: 'KNIGHT',
   k: 'KING',
-};
+} as const;
 
-export function getPseudoLegalMoves(board, fromRow, fromCol) {
-  const piece = board[fromRow][fromCol];
-  const validMoves = [];
+export function getPseudoLegalMoves(board: Board, fromRow: number, fromCol: number): Position[] {
+  const movingPiece = board[fromRow][fromCol];
+  if (!movingPiece) {
+    return [];
+  }
+  const validMoves: Position[] = [];
 
   // Sliding pieces (rook, bishop, queen)
-  if (piece.type === 'r' || piece.type === 'q' || piece.type === 'b') {
-    const directions = DIRECTIONS[PIECE_NAMES[piece.type]];
+  if (movingPiece.type === 'r' || movingPiece.type === 'q' || movingPiece.type === 'b') {
+    const directions = DIRECTIONS[PIECE_NAMES[movingPiece.type]];
     for (const dir of directions) {
       // Start from selected piece
       let toRow = fromRow;
@@ -71,12 +76,13 @@ export function getPseudoLegalMoves(board, fromRow, fromCol) {
           break;
         }
         // Stop at own piece, do not give square as a valid move
-        if (board[toRow][toCol] !== null) {
-          if (board[toRow][toCol].color === piece.color) {
+        const targetPiece = board[toRow][toCol];
+        if (targetPiece) {
+          if (targetPiece.color === movingPiece.color) {
             break;
           }
           // Stop at opponent, give square as a valid move (capture)
-          else if (board[toRow][toCol].color !== piece.color) {
+          else if (targetPiece.color !== movingPiece.color) {
             validMoves.push({ row: toRow, col: toCol });
             break;
           }
@@ -87,8 +93,8 @@ export function getPseudoLegalMoves(board, fromRow, fromCol) {
         }
       }
     }
-  } else if (piece.type === 'n' || piece.type === 'k') {
-    const directions = DIRECTIONS[PIECE_NAMES[piece.type]];
+  } else if (movingPiece.type === 'n' || movingPiece.type === 'k') {
+    const directions = DIRECTIONS[PIECE_NAMES[movingPiece.type]];
     for (const dir of directions) {
       // Start from selected piece
       let toRow = fromRow;
@@ -100,12 +106,13 @@ export function getPseudoLegalMoves(board, fromRow, fromCol) {
         continue;
       }
       // Stop at own piece, do not give square as a valid move
-      if (board[toRow][toCol] !== null) {
-        if (board[toRow][toCol].color === piece.color) {
+      const targetPiece = board[toRow][toCol];
+      if (targetPiece) {
+        if (targetPiece.color === movingPiece.color) {
           continue;
         }
         // Stop at opponent, give square as a valid move (capture)
-        else if (board[toRow][toCol].color !== piece.color) {
+        else if (targetPiece.color !== movingPiece.color) {
           validMoves.push({ row: toRow, col: toCol });
           continue;
         }
@@ -114,10 +121,10 @@ export function getPseudoLegalMoves(board, fromRow, fromCol) {
         validMoves.push({ row: toRow, col: toCol });
       }
     }
-  } else if (piece.type === 'p') {
-    const direction = piece.color === 'w' ? -1 : 1;
+  } else if (movingPiece.type === 'p') {
+    const direction = movingPiece.color === 'w' ? -1 : 1;
     const diagonal =
-      piece.color === 'w'
+      movingPiece.color === 'w'
         ? [
             [-1, -1],
             [-1, 1],
@@ -132,7 +139,7 @@ export function getPseudoLegalMoves(board, fromRow, fromCol) {
       if (board[singleStep][fromCol] === null) {
         validMoves.push({ row: singleStep, col: fromCol });
         // Then check if double step is possible
-        if (!piece.hasMoved) {
+        if (!movingPiece.hasMoved) {
           const doubleStep = fromRow + direction * 2;
           if (doubleStep >= 0 && doubleStep < 8) {
             if (board[doubleStep][fromCol] === null) {
@@ -147,8 +154,9 @@ export function getPseudoLegalMoves(board, fromRow, fromCol) {
       let toCol = fromCol + dir[1];
       if (toRow >= 0 && toRow < 8 && toCol >= 0 && toCol < 8) {
         // Check if square occupied
-        if (board[toRow][toCol] !== null) {
-          if (board[toRow][toCol].color !== piece.color) {
+        const targetPiece = board[toRow][toCol];
+        if (targetPiece) {
+          if (targetPiece.color !== movingPiece.color) {
             validMoves.push({ row: toRow, col: toCol });
           }
         }

@@ -10,7 +10,13 @@ export interface Piece {
 export type Square = Piece | null;
 export type Board = Square[][];
 
-export interface Move {
+export interface Position {
   row: number;
   col: number;
+}
+
+export interface LastMove {
+    from: Position;
+    to: Position;
+    type: PieceType;
 }

@@ -1,14 +1,18 @@
-import { createBoard } from './createBoard.js';
-import { boardState } from './boardState.js';
-import { getValidMoves } from './getValidMoves.js';
-import { hideValidMoves, showValidMoves } from './showValidMoves.js';
-import { showPromotionMenu } from './menus.js';
-import { showCheckmateMenu } from './menus.js';
-import { showStalemateMenu } from './menus.js';
+import { createBoard } from './createBoard.ts';
+import { boardState } from './boardState.ts';
+import { getValidMoves } from './getValidMoves.ts';
+import { hideValidMoves, showValidMoves } from './showValidMoves.ts';
+import {
+  showPromotionMenu,
+  showCheckmateMenu,
+  showStalemateMenu,
+} from './menus.ts';
 import { updateBoard } from './updateBoard.ts';
-import { isKingInCheck } from './isKingInCheck.js';
-import { playerHasLegalMove } from './playerHasLegalMove.js';
-import { animateMove, movePiece } from './moveHandler.js';
+import { isKingInCheck } from './isKingInCheck.ts';
+import { playerHasLegalMove } from './playerHasLegalMove.ts';
+import { animateMove, movePiece } from './moveHandler.ts';
+
+import type { Color, LastMove, Position } from './types.ts';
 
 // Copy of starting board state
 let currentBoard = structuredClone(boardState);
@@ -21,73 +25,86 @@ boardHistory.push(currentBoard);
 createBoard(currentBoard);
 
 // Get board container for event delegation
-const board = document.querySelector('.board');
+const board = document.querySelector<HTMLDivElement>('.board');
+if (!board) {
+  throw new Error('Board element not found');
+}
 
-// Player turns
-let turn = 'w';
-document.querySelector('h1').textContent = "White's turn";
-let halfmoves = 0;
-let currentSelect = null;
-let currentPieceImg = null;
-let validMoves = [];
+const heading = document.querySelector<HTMLHeadingElement>('h1');
+if (!heading) {
+  throw new Error('Heading not found');
+}
+
+heading.textContent = "White's turn";
+let selectedSquareElement: HTMLDivElement | null = null;
+let currentPieceImg: HTMLImageElement | null = null;
+let validMoves: Position[] = [];
+let lastMove: LastMove | null = null;
+let turn: Color = 'w';
 let gameOver = false;
-let lastMove = null;
+let halfmoves = 0;
 
 board.addEventListener('click', async (event) => {
   if (gameOver) {
     return;
   }
-  const newSelect = event.target.closest('.square');
-  console.log(newSelect);
+
+  if (!(event.target instanceof Element)) {
+    return;
+  }
+
+  // Select square that was clicked
+  const targetSquareElement = event.target.closest<HTMLDivElement>('.square');
 
   // Guard clause against invalid clicks
-  if (newSelect === null) {
+  if (!targetSquareElement) {
     return;
   }
 
   hideValidMoves();
 
-  // No square currently selected: select initial square
-  if (currentSelect === null) {
-    if (newSelect.querySelector('img') === null) {
+  const targetRow = Number(targetSquareElement.dataset.row);
+  const targetCol = Number(targetSquareElement.dataset.col);
+  const piece = currentBoard[targetRow][targetCol];
+
+  // No square currently selected
+  if (selectedSquareElement === null) {
+    if (!piece) {
       return;
-    } else if (
-      currentBoard[newSelect.dataset.row][newSelect.dataset.col].color !== turn
-    ) {
-      return;
-    } else {
-      newSelect.classList.add('selected');
-      currentSelect = newSelect;
-      currentPieceImg = currentSelect.querySelector('img');
-      const fromRow = Number(currentSelect.dataset.row);
-      const fromCol = Number(currentSelect.dataset.col);
-      // Get all valid moves
-      validMoves = getValidMoves(
-        currentBoard,
-        fromRow,
-        fromCol,
-        turn,
-        lastMove,
-      );
-      showValidMoves(validMoves);
     }
+
+    if (piece.color !== turn) {
+      return;
+    }
+
+    targetSquareElement.classList.add('selected');
+    selectedSquareElement = targetSquareElement;
+    currentPieceImg = selectedSquareElement.querySelector('img');
+    const fromRow = Number(selectedSquareElement.dataset.row);
+    const fromCol = Number(selectedSquareElement.dataset.col);
+
+    // Get all valid moves
+    validMoves = getValidMoves(currentBoard, fromRow, fromCol, turn, lastMove);
+    showValidMoves(validMoves);
   }
 
   // There is a square already selected
   else {
-    // New selected piece
-    const newPieceImg = newSelect.querySelector('img');
+    // New selected piece image
+    const targetPieceImg = targetSquareElement.querySelector('img');
+
     // Current square position
-    const fromRow = Number(currentSelect.dataset.row);
-    const fromCol = Number(currentSelect.dataset.col);
+    const fromRow = Number(selectedSquareElement.dataset.row);
+    const fromCol = Number(selectedSquareElement.dataset.col);
+
     // Destination square position
-    const toRow = Number(newSelect.dataset.row);
-    const toCol = Number(newSelect.dataset.col);
+    const toRow = Number(targetSquareElement.dataset.row);
+    const toCol = Number(targetSquareElement.dataset.col);
 
     // Reset if same square clicked twice
-    if (newSelect === currentSelect) {
-      currentSelect.classList.remove('selected');
-      currentSelect = null;
+    if (targetSquareElement === selectedSquareElement) {
+      selectedSquareElement.classList.remove('selected');
+      selectedSquareElement = null;
       return;
     }
 
@@ -106,30 +123,51 @@ board.addEventListener('click', async (event) => {
 
       // Update DOM
       // Remove highlight
-      currentSelect.classList.remove('selected');
+      selectedSquareElement.classList.remove('selected');
+
       // Remove captured image
-      if (newPieceImg) {
-        newPieceImg.remove();
+      if (targetPieceImg) {
+        targetPieceImg.remove();
       }
-      newSelect.appendChild(currentPieceImg);
+
+      if (!currentPieceImg) {
+        throw new Error('Selected piece image not found');
+      }
+
+      targetSquareElement.appendChild(currentPieceImg);
 
       // Animate move
-      animateMove(currentPieceImg, currentSelect, newSelect);
+      animateMove(currentPieceImg, selectedSquareElement, targetSquareElement);
 
       if (result.isEnPassant) {
-        console.log('En passant move detected');
         // Remove the previous pawn (same row as passing pawn)
         const passedPawnImg = document.querySelector(
           `.square[data-row="${fromRow}"][data-col="${toCol}"] img`,
         );
+        if (!passedPawnImg) {
+          throw new Error('Paseed pawn image not found');
+        }
         passedPawnImg.remove();
       }
 
       if (result.isPromotion) {
-        const promotedPiece = await showPromotionMenu(turn);
-        currentBoard[toRow][toCol].type = promotedPiece;
-        newSelect.querySelector('img').src =
-          `/pieces/${promotedPiece + turn}.svg`;
+        const promotedType = await showPromotionMenu(turn);
+        const promotedPiece = currentBoard[toRow][toCol];
+
+        if (!promotedPiece) {
+          throw new Error('Promoted piece not found');
+        }
+        promotedPiece.type = promotedType;
+
+        // Update image
+        const promotedPieceImg =
+          targetSquareElement.querySelector<HTMLImageElement>('img');
+
+        if (!promotedPieceImg) {
+          throw new Error('Promoted image not found');
+        }
+
+        promotedPieceImg.src = `/pieces/${promotedType + turn}.svg`;
       }
 
       if (result.isCastling) {
@@ -142,14 +180,25 @@ board.addEventListener('click', async (event) => {
             row: rookRow,
             col: 5,
           });
+
           // Update DOM
-          const rookSquareFrom = document.querySelector(
+          const rookSquareFrom = document.querySelector<HTMLDivElement>(
             `.square[data-row="${rookRow}"][data-col="7"]`,
           );
-          const rookImg = rookSquareFrom.querySelector('img');
           const rookSquareTo = document.querySelector(
             `.square[data-row="${rookRow}"][data-col="5"]`,
           );
+
+          if (!rookSquareFrom || !rookSquareTo) {
+            throw new Error('Castling rook square not found');
+          }
+
+          const rookImg = rookSquareFrom.querySelector('img');
+
+          if (!rookImg) {
+            throw new Error('Castling rook image not found');
+          }
+          
           rookSquareTo.appendChild(rookImg);
         }
         // Queenside castle
@@ -163,10 +212,20 @@ board.addEventListener('click', async (event) => {
           const rookSquareFrom = document.querySelector(
             `.square[data-row="${rookRow}"][data-col="0"]`,
           );
-          const rookImg = rookSquareFrom.querySelector('img');
           const rookSquareTo = document.querySelector(
             `.square[data-row="${rookRow}"][data-col="3"]`,
           );
+
+          if (!rookSquareFrom || !rookSquareTo) {
+            throw new Error('Castling rook square not found');
+          }
+
+          const rookImg = rookSquareFrom.querySelector('img');
+
+          if (!rookImg) {
+            throw new Error('Castling rook image not found');
+          }
+
           rookSquareTo.appendChild(rookImg);
         }
       }
@@ -175,10 +234,10 @@ board.addEventListener('click', async (event) => {
       halfmoves += 1;
       if (turn === 'w') {
         turn = 'b';
-        document.querySelector('h1').textContent = "Black's turn";
+        heading.textContent = "Black's turn";
       } else {
         turn = 'w';
-        document.querySelector('h1').textContent = "White's turn";
+        heading.textContent = "White's turn";
       }
 
       // Update board history
@@ -186,25 +245,25 @@ board.addEventListener('click', async (event) => {
 
       // Check if checkmate or stalemate
       if (
-        !playerHasLegalMove(currentBoard, turn) &&
+        !playerHasLegalMove(currentBoard, turn, lastMove) &&
         isKingInCheck(currentBoard, turn)
       ) {
         showCheckmateMenu();
       } else if (
-        !playerHasLegalMove(currentBoard, turn) &&
+        !playerHasLegalMove(currentBoard, turn, lastMove) &&
         !isKingInCheck(currentBoard, turn)
       ) {
         showStalemateMenu();
       }
-      currentSelect = null;
+      selectedSquareElement = null;
     }
 
     // Same color piece - switch selection
     else if (currentBoard[toRow][toCol]?.color === turn) {
-      currentSelect.classList.remove('selected');
-      newSelect.classList.add('selected');
-      currentSelect = newSelect;
-      currentPieceImg = currentSelect.querySelector('img');
+      selectedSquareElement.classList.remove('selected');
+      targetSquareElement.classList.add('selected');
+      selectedSquareElement = targetSquareElement;
+      currentPieceImg = selectedSquareElement.querySelector('img');
 
       // Get all valid moves
       validMoves = getValidMoves(currentBoard, toRow, toCol, turn, lastMove);
@@ -214,8 +273,8 @@ board.addEventListener('click', async (event) => {
 
     // Invalid move
     else {
-      currentSelect.classList.remove('selected');
-      currentSelect = null;
+      selectedSquareElement.classList.remove('selected');
+      selectedSquareElement = null;
       return;
     }
   }

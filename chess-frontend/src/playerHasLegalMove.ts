@@ -1,15 +1,21 @@
-import type { Board, Color, Move } from './types.ts';
-import { getValidMoves } from './getValidMoves.js';
+import { getValidMoves } from './getValidMoves.ts';
 
-export function playerHasLegalMove(board: Board, turn: Color): boolean {
+import type { Board, Color, Position, LastMove } from './types.ts';
+
+export function playerHasLegalMove(
+  board: Board,
+  turn: Color,
+  lastMove: LastMove | null,
+): boolean {
   for (const [rowIndex, row] of board.entries()) {
     for (const [colIndex, square] of row.entries()) {
       if (square?.color === turn) {
-        const validMoves: Move[] = getValidMoves(
+        const validMoves: Position[] = getValidMoves(
           board,
           rowIndex,
           colIndex,
           turn,
+          lastMove,
         );
 
         if (validMoves.length > 0) {

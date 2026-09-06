@@ -1,3 +1,5 @@
+import type { Board, Color, PieceType } from "./types.ts";
+
 const DIRECTIONS = {
   FILE: [
     [-1, 0],
@@ -13,10 +15,10 @@ const DIRECTIONS = {
   ],
 };
 
-export function findPiece(board, turn, type) {
-  for (const [rowIndex, rowObject] of board.entries()) {
-    for (const [colIndex, colObject] of rowObject.entries()) {
-      if (colObject?.type === type && colObject?.color === turn) {
+export function findPiece(board: Board, turn: Color, type: PieceType): [number, number] | null {
+  for (const [rowIndex, row] of board.entries()) {
+    for (const [colIndex, square] of row.entries()) {
+      if (square?.type === type && square?.color === turn) {
         return [rowIndex, colIndex];
       }
     }
@@ -24,8 +26,12 @@ export function findPiece(board, turn, type) {
   return null;
 }
 
-export function isKingInCheck(board, turn) {
-  const [kingRow, kingCol] = findPiece(board, turn, 'k');
+export function isKingInCheck(board: Board, turn: Color) {
+  const kingPosition = findPiece(board, turn, 'k');
+  if (!kingPosition) {
+    throw new Error(`King not found for color ${turn}`);
+  }
+  const [kingRow, kingCol] = kingPosition;
   let inCheck = false;
 
   // Check for enemy king in surrounding squares
@@ -33,9 +39,9 @@ export function isKingInCheck(board, turn) {
   for (const dir of allDirections) {
     let toRow = kingRow + dir[0];
     let toCol = kingCol + dir[1];
-    // Out of bonds check
+    // Out of bounds check
     if (toRow < 8 && toCol < 8 && toRow >= 0 && toCol >= 0) {
-      let piece = board[toRow][toCol];
+      const piece = board[toRow][toCol];
       if (piece && piece.type === 'k' && piece.color !== turn) {
         return true;
       }
@@ -49,7 +55,7 @@ export function isKingInCheck(board, turn) {
       (col) => col >= 0 && col <= 7,
     );
     for (const col of pawnCols) {
-      let piece = board[pawnRow][col];
+      const piece = board[pawnRow][col];
       if (piece && piece.type === 'p' && piece.color !== turn) {
         return true;
       }
@@ -69,7 +75,7 @@ export function isKingInCheck(board, turn) {
   ];
   for (const [row, col] of knightSquares) {
     if (row >= 0 && row < 8 && col >= 0 && col < 8) {
-      let piece = board[row][col];
+      const piece = board[row][col];
       if (piece && piece.type === 'n' && piece.color !== turn) {
         return true;
       }
@@ -91,14 +97,15 @@ export function isKingInCheck(board, turn) {
         break;
       }
       // Stop at own piece
-      if (board[toRow][toCol] !== null) {
-        if (board[toRow][toCol].color === turn) {
+      const piece = board[toRow][toCol];
+      if (piece) {
+        if (piece.color === turn) {
           break;
         }
         // Stop at opponent's piece; in check if occupied by rook or queen
         else if (
-          board[toRow][toCol].type === 'r' ||
-          board[toRow][toCol].type === 'q'
+          piece.type === 'r' ||
+          piece.type === 'q'
         ) {
           return true;
         } else {
@@ -123,14 +130,15 @@ export function isKingInCheck(board, turn) {
         break;
       }
       // Stop at own piece
-      if (board[toRow][toCol] !== null) {
-        if (board[toRow][toCol].color === turn) {
+      const piece = board[toRow][toCol];
+      if (piece) {
+        if (piece.color === turn) {
           break;
         }
         // Stop at opponent's piece; in check if occupied by bishop or queen
         else if (
-          board[toRow][toCol].type === 'b' ||
-          board[toRow][toCol].type === 'q'
+          piece.type === 'b' ||
+          piece.type === 'q'
         ) {
           return true;
         } else {

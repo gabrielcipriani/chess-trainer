@@ -1,5 +1,7 @@
+import type { Board } from "./types.ts";
+
 // Starting board state
-export const boardState = [
+export const boardState: Board = [
   [
     { type: 'r', color: 'b', hasMoved: false },
     { type: 'n', color: 'b', hasMoved: false },

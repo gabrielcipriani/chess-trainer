@@ -1,22 +1,27 @@
-import { isKingInCheck } from './isKingInCheck.js';
+import { isKingInCheck } from './isKingInCheck.ts';
 import { updateBoard } from './updateBoard.ts';
-import { getPseudoLegalMoves } from './getPseudoLegalMoves.js';
-import { getCastlingMoves } from './specialMoves.js';
+import { getPseudoLegalMoves } from './getPseudoLegalMoves.ts';
+import { getCastlingMoves } from './specialMoves.ts';
 
+import type { Board, Color, Position, LastMove } from './types.ts';
 /**
  * Returns an array of valid moves for a piece at (fromRow, fromCol).
  * A valid move is one that does not leave the player's king in check.
  */
-export function getValidMoves(board, fromRow, fromCol, turn, lastMove) {
+export function getValidMoves(board: Board, fromRow: number, fromCol: number, turn: Color, lastMove: LastMove | null) {
+  const currentPiece = board[fromRow][fromCol];
+  if (!currentPiece) {
+    return [];
+  }
   const pseudoLegalMoves = getPseudoLegalMoves(board, fromRow, fromCol);
-  const validMoves = [];
+  const validMoves: Position[] = [];
   for (const move of pseudoLegalMoves) {
     const futureBoard = updateBoard(board, fromRow, fromCol, move);
     if (!isKingInCheck(futureBoard, turn)) {
       validMoves.push(move);
     }
   }
-  const currentPiece = board[fromRow][fromCol];
+
   // Castling check
   if (currentPiece.type === 'k') {
     const castlingMoves = getCastlingMoves(board, turn);
@@ -24,11 +29,8 @@ export function getValidMoves(board, fromRow, fromCol, turn, lastMove) {
       validMoves.push(...castlingMoves);
     }
   }
+  
   // En passant check
-  // If last move was pawn move, and double step,
-  // check if opponent pawn piece left or right matching fromRow fromCol,
-  // add square behind to valid moves (en passant)
-
   if (
     currentPiece.type === 'p' &&
     lastMove?.type === 'p' &&

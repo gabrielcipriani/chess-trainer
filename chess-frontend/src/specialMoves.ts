@@ -5,10 +5,12 @@
 // Not in check: Your king cannot currently be under attack.
 // No passing through check: The king cannot move through or land on any square attacked by an enemy piece.
 
-import { isKingInCheck } from './isKingInCheck.js';
+import { isKingInCheck } from './isKingInCheck.ts';
 import { updateBoard } from './updateBoard.ts';
 
-export function getCastlingMoves(board, turn) {
+import type { Board, Color } from './types.ts';
+
+export function getCastlingMoves(board: Board, turn: Color) {
   const validCastlingMoves = [];
   const row = turn === 'w' ? 7 : 0;
   if (

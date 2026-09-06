@@ -1,8 +1,10 @@
+import type { Board } from './types.ts';
+
 /**
  * Creates the chess board DOM and adds piece images to it
  * @param {Array} state - The current state of the board
  */
-export function createBoard(state) {
+export function createBoard(state: Board): void {
   const files = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
   const board = document.querySelector('.board');
   // Loop over rows
@@ -16,8 +18,8 @@ export function createBoard(state) {
         (row + col) % 2 === 0 ? 'wSquare' : 'bSquare',
       );
       // Add row and col data attributes
-      newSquare.dataset.row = row;
-      newSquare.dataset.col = col;
+      newSquare.dataset.row = String(row);
+      newSquare.dataset.col = String(col);
       // Add piece to square
       const piece = state[row][col];
       const pieceElement = document.createElement('img');
@@ -37,10 +39,13 @@ export function createBoard(state) {
       if (col === 0) {
         const coord = document.createElement('div');
         coord.classList.add('coordinate-ranks');
-        coord.textContent = 8 - row;
+        coord.textContent = String(8 - row);
         newSquare.appendChild(coord);
       }
-
+      // Guard against null board element
+      if (!board) {
+        throw new Error('Board element not found');
+      }
       board.appendChild(newSquare);
     }
   }

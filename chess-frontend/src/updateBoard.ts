@@ -1,4 +1,4 @@
-import type { Board, Move } from './types.ts';
+import type { Board, Position } from './types.ts';
 /**
  * Returns a new board with the move applied
  */
@@ -6,7 +6,7 @@ export function updateBoard(
   board: Board,
   fromRow: number,
   fromCol: number,
-  move: Move,
+  move: Position,
 ): Board {
   // Make copy
   const newBoard = structuredClone(board);
