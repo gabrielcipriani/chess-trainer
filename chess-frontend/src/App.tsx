@@ -10,10 +10,26 @@ export function App() {
 
   function handleSquareClick(row: number, col: number): void {
     const piece = board[row][col];
-    if (!piece || piece.color !== turn) {
+
+    if (selectedSquare === null) {
+      if (!piece || piece.color !== turn) {
+        return;
+      }
+      setSelectedSquare({ row, col });
       return;
     }
-    setSelectedSquare({ row, col });
+    // same square clicked twice: deselect
+    else if (row === selectedSquare.row && col === selectedSquare.col) {
+      setSelectedSquare(null);
+    }
+    // different piece clicked of same color: switch
+    else if (piece && piece.color === turn) {
+      setSelectedSquare({ row, col });
+    }
+    // fallback
+    else {
+      setSelectedSquare(null);
+    }
   }
 
   return (
