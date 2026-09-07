@@ -27,7 +27,7 @@ export function Board({ board }: { board: BoardType }) {
           <SquareCell
             key={`${rowIndex}-${colIndex}`}
             piece={piece}
-            onClick={() => console.log('Square clicked')}
+            onClick={() => console.log(`Square clicked at (${rowIndex}, ${colIndex})`)}
           />
         )),
       )}
