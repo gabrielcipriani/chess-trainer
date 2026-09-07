@@ -19,7 +19,13 @@ function SquareCell({
   );
 }
 
-export function Board({ board }: { board: BoardType }) {
+export function Board({
+  board,
+  onSquareClick,
+}: {
+  board: BoardType;
+  onSquareClick: (rowIndex: number, colIndex: number) => void;
+}) {
   return (
     <div className="board">
       {board.map((row, rowIndex) =>
@@ -27,7 +33,9 @@ export function Board({ board }: { board: BoardType }) {
           <SquareCell
             key={`${rowIndex}-${colIndex}`}
             piece={piece}
-            onClick={() => console.log(`Square clicked at (${rowIndex}, ${colIndex})`)}
+            onClick={() =>
+              onSquareClick(rowIndex, colIndex)
+            }
           />
         )),
       )}
