@@ -1,14 +1,23 @@
-import type { Board as BoardType, Square as SquareType } from './types.ts';
+import type {
+  Board as BoardType,
+  Square as SquareType,
+  Position,
+} from './types.ts';
 
 function SquareCell({
   piece,
+  isSelected,
   onClick,
 }: {
   piece: SquareType;
+  isSelected: boolean,
   onClick: () => void;
 }) {
   return (
-    <div className="square" onClick={onClick}>
+    <div
+      className={`square' ${isSelected ? 'selected' : ''}`}
+      onClick={onClick}
+    >
       {piece && (
         <img
           src={`/pieces/${piece.type}${piece.color}.svg`}
@@ -21,9 +30,11 @@ function SquareCell({
 
 export function Board({
   board,
+  selectedSquare,
   onSquareClick,
 }: {
   board: BoardType;
+  selectedSquare: Position | null;
   onSquareClick: (rowIndex: number, colIndex: number) => void;
 }) {
   return (
@@ -33,9 +44,11 @@ export function Board({
           <SquareCell
             key={`${rowIndex}-${colIndex}`}
             piece={piece}
-            onClick={() =>
-              onSquareClick(rowIndex, colIndex)
+            isSelected={
+              selectedSquare?.row === rowIndex &&
+              selectedSquare?.col === colIndex
             }
+            onClick={() => onSquareClick(rowIndex, colIndex)}
           />
         )),
       )}

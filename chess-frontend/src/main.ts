@@ -109,7 +109,7 @@ board.addEventListener('click', async (event) => {
     }
 
     // Move piece to selected square
-    if (validMoves.some((move) => move.row === toRow && move.col == toCol)) {
+    if (validMoves.some((move) => move.row === toRow && move.col === toCol)) {
       const result = movePiece(
         currentBoard,
         fromRow,
