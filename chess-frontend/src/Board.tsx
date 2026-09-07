@@ -1,8 +1,14 @@
 import type { Board as BoardType, Square as SquareType } from './types.ts';
 
-function SquareCell({ piece }: { piece: SquareType }) {
+function SquareCell({
+  piece,
+  onClick,
+}: {
+  piece: SquareType;
+  onClick: () => void;
+}) {
   return (
-    <div className="square">
+    <div className="square" onClick={onClick}>
       {piece && (
         <img
           src={`/pieces/${piece.type}${piece.color}.svg`}
@@ -18,7 +24,11 @@ export function Board({ board }: { board: BoardType }) {
     <div className="board">
       {board.map((row, rowIndex) =>
         row.map((piece, colIndex) => (
-          <SquareCell key={`${rowIndex}-${colIndex}`} piece={piece} />
+          <SquareCell
+            key={`${rowIndex}-${colIndex}`}
+            piece={piece}
+            onClick={() => console.log('Square clicked')}
+          />
         )),
       )}
     </div>
