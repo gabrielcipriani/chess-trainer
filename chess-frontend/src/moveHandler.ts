@@ -16,7 +16,7 @@ export function movePiece(
     throw new Error(`Piece to move not found at (${fromRow}, ${fromCol})`);
   }
     
-  const turn = board[fromRow][fromCol]?.color;
+  const turn = originSquare.color;
 
   let newBoard = updateBoard(board, fromRow, fromCol, {
     row: toRow,

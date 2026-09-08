@@ -20,3 +20,5 @@ export interface LastMove {
     to: Position;
     type: PieceType;
 }
+
+export type GameStatus = 'playing' | 'checkmate' | 'stalemate';

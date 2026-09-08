@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import { Board } from './Board.tsx';
 import { boardState } from './boardState.ts';
-import type { Position, Color, LastMove } from './types.ts';
 import { getValidMoves } from './getValidMoves.ts';
 import { movePiece } from './moveHandler.ts';
-import { updateBoard } from './updateBoard.ts';
+import { playerHasLegalMove } from './playerHasLegalMove.ts';
+import { isKingInCheck } from './isKingInCheck.ts';
+
+import type { Position, Color, LastMove, GameStatus } from './types.ts';
 
 export function App() {
   const [board, setBoard] = useState(boardState);
   const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
   const [turn, setTurn] = useState<Color>('w');
   const [lastMove, setLastMove] = useState<LastMove | null>(null);
+  const [status, setStatus] = useState<GameStatus>('playing');
 
   const validMoves = selectedSquare
     ? getValidMoves(
@@ -69,6 +72,15 @@ export function App() {
         // attempt to change turns
         const newTurn = turn === 'w' ? 'b' : 'w';
         setTurn(newTurn);
+
+        // Check if checkmate or stalemate
+        if (!playerHasLegalMove(moveResult.newBoard, newTurn, moveResult.newLastMove)) {
+          if (isKingInCheck(moveResult.newBoard, turn)) {
+            setStatus('checkmate');
+          }
+        } else {
+          setStatus('stalemate');
+        }
       } else {
         setSelectedSquare(null);
       }
