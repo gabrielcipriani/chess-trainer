@@ -74,7 +74,13 @@ export function App() {
         setTurn(newTurn);
 
         // Check if checkmate or stalemate
-        if (!playerHasLegalMove(moveResult.newBoard, newTurn, moveResult.newLastMove)) {
+        if (
+          !playerHasLegalMove(
+            moveResult.newBoard,
+            newTurn,
+            moveResult.newLastMove,
+          )
+        ) {
           if (isKingInCheck(moveResult.newBoard, turn)) {
             setStatus('checkmate');
           }
@@ -96,6 +102,12 @@ export function App() {
         validMoves={validMoves}
         onSquareClick={handleSquareClick}
       />
+      {status === 'checkmate' && (
+        <div className="checkmate-menu">Checkmate!</div>
+      )}
+      {status === 'stalemate' && (
+        <div className="stalemate-menu">Stalemate!</div>
+      )}
     </>
   );
 }
