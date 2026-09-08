@@ -7,15 +7,17 @@ import type {
 function SquareCell({
   piece,
   isSelected,
+  isValidDestination,
   onClick,
 }: {
   piece: SquareType;
-  isSelected: boolean,
+  isSelected: boolean;
+  isValidDestination: boolean;
   onClick: () => void;
 }) {
   return (
     <div
-      className={`square' ${isSelected ? 'selected' : ''}`}
+      className={`square${isSelected ? ' selected' : ''}`}
       onClick={onClick}
     >
       {piece && (
@@ -24,6 +26,7 @@ function SquareCell({
           alt={`${piece.color === 'w' ? 'White' : 'Black'} ${piece.type}`}
         />
       )}
+      {isValidDestination && <div className='valid-move-marker'></div>}
     </div>
   );
 }
@@ -31,10 +34,12 @@ function SquareCell({
 export function Board({
   board,
   selectedSquare,
+  validMoves,
   onSquareClick,
 }: {
   board: BoardType;
   selectedSquare: Position | null;
+  validMoves: Position[] | null;
   onSquareClick: (rowIndex: number, colIndex: number) => void;
 }) {
   return (
@@ -48,6 +53,9 @@ export function Board({
               selectedSquare?.row === rowIndex &&
               selectedSquare?.col === colIndex
             }
+            isValidDestination={(validMoves ?? []).some(
+              (move) => move.row === rowIndex && move.col === colIndex,
+            )}
             onClick={() => onSquareClick(rowIndex, colIndex)}
           />
         )),

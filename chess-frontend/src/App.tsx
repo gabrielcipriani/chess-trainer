@@ -11,6 +11,16 @@ export function App() {
   const [turn, setTurn] = useState<Color>('w');
   const [lastMove, setLastMove] = useState<LastMove | null>(null);
 
+  const validMoves = selectedSquare
+    ? getValidMoves(
+        board,
+        selectedSquare.row,
+        selectedSquare.col,
+        turn,
+        lastMove,
+      )
+    : null;
+
   function handleSquareClick(row: number, col: number): void {
     const piece = board[row][col];
 
@@ -32,14 +42,9 @@ export function App() {
     }
     // legal square clicked: move there; if not: deselect
     else {
-      const validMoves = getValidMoves(
-        board,
-        selectedSquare.row,
-        selectedSquare.col,
-        turn,
-        lastMove,
-      );
-      if (validMoves.some((move) => move.row === row && move.col === col)) {
+      if (
+        (validMoves ?? []).some((move) => move.row === row && move.col === col)
+      ) {
         console.log('valid move!');
 
         // attempt to move piece
@@ -53,6 +58,7 @@ export function App() {
         );
         setBoard(moveResult.newBoard);
         setLastMove(moveResult.newLastMove);
+        setSelectedSquare(null);
 
         // castling check
         if (moveResult.isCastling) {
@@ -78,7 +84,12 @@ export function App() {
   return (
     <>
       <h1>Chess Trainer</h1>
-      <Board board={board} selectedSquare={selectedSquare} onSquareClick={handleSquareClick} />
+      <Board
+        board={board}
+        selectedSquare={selectedSquare}
+        validMoves={validMoves}
+        onSquareClick={handleSquareClick}
+      />
     </>
   );
 }
