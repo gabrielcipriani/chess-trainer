@@ -4,6 +4,7 @@ import { boardState } from './boardState.ts';
 import type { Position, Color, LastMove } from './types.ts';
 import { getValidMoves } from './getValidMoves.ts';
 import { movePiece } from './moveHandler.ts';
+import { updateBoard } from './updateBoard.ts';
 
 export function App() {
   const [board, setBoard] = useState(boardState);
@@ -56,21 +57,14 @@ export function App() {
           col,
           lastMove,
         );
-        setBoard(moveResult.newBoard);
-        setLastMove(moveResult.newLastMove);
-        setSelectedSquare(null);
-
-        // castling check
-        if (moveResult.isCastling) {
-        }
-
-        // en passant check
-        if (moveResult.isEnPassant) {
-        }
 
         // promotion check
         if (moveResult.isPromotion) {
         }
+
+        setBoard(moveResult.newBoard);
+        setLastMove(moveResult.newLastMove);
+        setSelectedSquare(null);
 
         // attempt to change turns
         const newTurn = turn === 'w' ? 'b' : 'w';
