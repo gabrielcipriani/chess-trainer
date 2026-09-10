@@ -3,10 +3,9 @@ import { Board } from './Board.tsx';
 import { boardState } from './boardState.ts';
 import { getValidMoves } from './getValidMoves.ts';
 import { movePiece } from './moveHandler.ts';
-import { playerHasLegalMove } from './playerHasLegalMove.ts';
-import { isKingInCheck } from './isKingInCheck.ts';
+import { checkStatus } from './checkStatus.ts';
 
-import type { Position, Color, LastMove, GameStatus } from './types.ts';
+import type { Position, Color, LastMove, GameStatus, PendingPromotion, PieceType } from './types.ts';
 
 export function App() {
   const [board, setBoard] = useState(boardState);
@@ -14,6 +13,7 @@ export function App() {
   const [turn, setTurn] = useState<Color>('w');
   const [lastMove, setLastMove] = useState<LastMove | null>(null);
   const [status, setStatus] = useState<GameStatus>('playing');
+  const [pendingPromotion, setPendingPromotion] = useState<PendingPromotion>(null);
 
   const validMoves = selectedSquare
     ? getValidMoves(
@@ -26,6 +26,9 @@ export function App() {
     : null;
 
   function handleSquareClick(row: number, col: number): void {
+    // guard clause for promotion menu
+    if (pendingPromotion) return;
+
     const piece = board[row][col];
 
     if (selectedSquare === null) {
@@ -49,8 +52,6 @@ export function App() {
       if (
         (validMoves ?? []).some((move) => move.row === row && move.col === col)
       ) {
-        console.log('valid move!');
-
         // attempt to move piece
         const moveResult = movePiece(
           board,
@@ -61,53 +62,71 @@ export function App() {
           lastMove,
         );
 
-        // promotion check
-        if (moveResult.isPromotion) {
-        }
-
         setBoard(moveResult.newBoard);
         setLastMove(moveResult.newLastMove);
         setSelectedSquare(null);
+
+        // promotion check
+        if (moveResult.isPromotion) {
+          setPendingPromotion({row, col, color: turn});
+          return;
+        }
 
         // attempt to change turns
         const newTurn = turn === 'w' ? 'b' : 'w';
         setTurn(newTurn);
 
-        // Check if checkmate or stalemate
-        if (
-          !playerHasLegalMove(
-            moveResult.newBoard,
-            newTurn,
-            moveResult.newLastMove,
-          )
-        ) {
-          if (isKingInCheck(moveResult.newBoard, turn)) {
-            setStatus('checkmate');
-          }
-        } else {
-          setStatus('stalemate');
-        }
+        setStatus(checkStatus(moveResult.newBoard, newTurn, moveResult.newLastMove));
       } else {
         setSelectedSquare(null);
       }
     }
   }
 
+  function handlePromotionChoice(chosenType: PieceType): void {
+    const squareToUpdate = pendingPromotion!;
+    // promote piece
+    const newBoard = structuredClone(board);
+    newBoard[squareToUpdate.row][squareToUpdate.col]!.type = chosenType;
+    setBoard(newBoard);
+    // reset promotion state
+    setPendingPromotion(null);
+
+    const newTurn = turn === 'w' ? 'b' : 'w';
+    setTurn(newTurn);
+    setStatus(checkStatus(newBoard, newTurn, lastMove!));
+  }
+  
+
   return (
     <>
       <h1>Chess Trainer</h1>
-      <Board
-        board={board}
-        selectedSquare={selectedSquare}
-        validMoves={validMoves}
-        onSquareClick={handleSquareClick}
-      />
-      {status === 'checkmate' && (
-        <div className="checkmate-menu">Checkmate!</div>
-      )}
-      {status === 'stalemate' && (
-        <div className="stalemate-menu">Stalemate!</div>
-      )}
+      <div className='game-container'>
+        <Board
+          board={board}
+          selectedSquare={selectedSquare}
+          validMoves={validMoves}
+          onSquareClick={handleSquareClick}
+        />
+        {status === 'checkmate' && (
+          <div className="checkmate-menu">Checkmate!</div>
+        )}
+        {status === 'stalemate' && (
+          <div className="stalemate-menu">Stalemate!</div>
+        )}
+        {pendingPromotion && turn === 'w' && (<div className='promotion-menu'>
+          <img src='/pieces/qw.svg' alt='White Queen' onClick={() => handlePromotionChoice('q')} />
+          <img src='/pieces/rw.svg' alt='White Rook' onClick={() => handlePromotionChoice('r')} />
+          <img src='/pieces/bw.svg' alt='White Bishop' onClick={() => handlePromotionChoice('b')} />
+          <img src='/pieces/nw.svg' alt='White Knight' onClick={() => handlePromotionChoice('n')} />
+        </div>)}
+        {pendingPromotion && turn === 'b' && (<div className='promotion-menu'>
+          <img src='/pieces/qb.svg' alt='Black Queen' onClick={() => handlePromotionChoice('q')} />
+          <img src='/pieces/rb.svg' alt='Black Rook' onClick={() => handlePromotionChoice('r')} />
+          <img src='/pieces/bb.svg' alt='Black Bishop' onClick={() => handlePromotionChoice('b')} />
+          <img src='/pieces/nb.svg' alt='Black Knight' onClick={() => handlePromotionChoice('n')} />
+        </div>)}
+      </div>
     </>
   );
 }
