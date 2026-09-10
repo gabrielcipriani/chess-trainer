@@ -10,27 +10,15 @@ export function movePiece(
   toCol: number,
   lastMove: LastMove | null,
 ) {
-  // Check if castling (king moves 2 squares)
+
   const originSquare = board[fromRow][fromCol];
   if (!originSquare) {
     throw new Error(`Piece to move not found at (${fromRow}, ${fromCol})`);
   }
-  const isCastling =
-    originSquare.type === 'k' &&
-    fromRow === toRow &&
-    Math.abs(fromCol - toCol) === 2;
+    
+  const turn = originSquare.color;
 
-  // Check if en passant (current pawn moves diagonally into empty square)
-  const isEnPassant =
-    lastMove?.type === 'p' &&
-    originSquare.type === 'p' &&
-    Math.abs(fromCol - toCol) === 1 &&
-    board[toRow][toCol] === null;
-
-  // Check for pawn promotion
-  const isPromotion = originSquare.type === 'p' && (toRow === 0 || toRow === 7);
-
-  const newBoard = updateBoard(board, fromRow, fromCol, {
+  let newBoard = updateBoard(board, fromRow, fromCol, {
     row: toRow,
     col: toCol,
   });
@@ -40,6 +28,48 @@ export function movePiece(
     to: { row: toRow, col: toCol },
     type: originSquare.type,
   };
+
+  // Castling if king moves two squares either side
+  const isCastling =
+    originSquare.type === 'k' &&
+    fromRow === toRow &&
+    Math.abs(fromCol - toCol) === 2;
+
+  // En passant if current pawn moves diagonally into empty square
+  const isEnPassant =
+    lastMove?.type === 'p' &&
+    originSquare.type === 'p' &&
+    Math.abs(fromCol - toCol) === 1 &&
+    board[toRow][toCol] === null;
+
+  // Pawn promotion if pawn on final rank
+  const isPromotion = originSquare.type === 'p' && (toRow === 0 || toRow === 7);
+
+  if (isCastling) {
+    // determine rook row based on turn
+    const rookRow = turn === 'w' ? 7 : 0;
+    // kingside castle
+    if (toCol === 6) {
+      // update board for rook move
+      newBoard = updateBoard(newBoard, rookRow, 7, {
+        row: rookRow,
+        col: 5,
+      });
+    }
+    // queenside castle
+    else if (toCol === 2) {
+      // update board for rook move
+      newBoard = updateBoard(newBoard, rookRow, 0, {
+        row: rookRow,
+        col: 3,
+      });
+    }
+  }
+
+  if(isEnPassant) {
+    // remove passed pawm
+    newBoard[fromRow][toCol] = null;
+  }
 
   return { newBoard, newLastMove, isCastling, isEnPassant, isPromotion };
 }

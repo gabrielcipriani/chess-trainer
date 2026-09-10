@@ -1,24 +1,63 @@
-import type { Board as BoardType, Square as SquareType } from './types.ts';
+import type {
+  Board as BoardType,
+  Square as SquareType,
+  Position,
+} from './types.ts';
 
-function SquareCell({ piece }: { piece: SquareType }) {
+function SquareCell({
+  piece,
+  isSelected,
+  isValidDestination,
+  onClick,
+}: {
+  piece: SquareType;
+  isSelected: boolean;
+  isValidDestination: boolean;
+  onClick: () => void;
+}) {
   return (
-    <div className="square">
+    <div
+      className={`square${isSelected ? ' selected' : ''}`}
+      onClick={onClick}
+    >
       {piece && (
         <img
           src={`/pieces/${piece.type}${piece.color}.svg`}
           alt={`${piece.color === 'w' ? 'White' : 'Black'} ${piece.type}`}
         />
       )}
+      {isValidDestination && <div className='valid-move-marker'></div>}
     </div>
   );
 }
 
-export function Board({ board }: { board: BoardType }) {
+export function Board({
+  board,
+  selectedSquare,
+  validMoves,
+  onSquareClick,
+}: {
+  board: BoardType;
+  selectedSquare: Position | null;
+  validMoves: Position[] | null;
+  onSquareClick: (rowIndex: number, colIndex: number) => void;
+}) {
   return (
     <div className="board">
       {board.map((row, rowIndex) =>
         row.map((piece, colIndex) => (
-          <SquareCell key={`${rowIndex}-${colIndex}`} piece={piece} />
+          <SquareCell
+            key={`${rowIndex}-${colIndex}`}
+            piece={piece}
+            isSelected={
+              selectedSquare?.row === rowIndex &&
+              selectedSquare?.col === colIndex
+            }
+            isValidDestination={(validMoves ?? []).some(
+              (move) => move.row === rowIndex && move.col === colIndex,
+            )}
+            onClick={() => onSquareClick(rowIndex, colIndex)}
+          />
         )),
       )}
     </div>

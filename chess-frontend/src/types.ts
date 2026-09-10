@@ -20,3 +20,7 @@ export interface LastMove {
     to: Position;
     type: PieceType;
 }
+
+export type GameStatus = 'playing' | 'checkmate' | 'stalemate';
+
+export type PendingPromotion = { row: number; col: number; color: Color } | null;
