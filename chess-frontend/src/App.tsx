@@ -135,6 +135,16 @@ export function App() {
     setPendingPromotion(null);
   }
   
+  function handleGrab(row: number, col: number): void {
+    const piece = board[row][col];
+    if (selectedSquare === null) {
+      if (!piece || piece.color !== turn) {
+        return;
+      }
+      setSelectedSquare({ row, col });
+      return;
+    }
+  }
 
   return (
     <>
@@ -145,6 +155,7 @@ export function App() {
           selectedSquare={selectedSquare}
           validMoves={validMoves}
           onSquareClick={handleSquareClick}
+          onPieceGrab={handleGrab}
         />
         {status === 'checkmate' && (
           <div className="checkmate-menu">Checkmate!</div>
