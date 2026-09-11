@@ -14,7 +14,9 @@ export function checkStatus(
     } else {
       return 'stalemate';
     }
-  } else {
-    return 'playing';
   }
+  if (isKingInCheck(board, turn)) {
+    return 'check';
+  }
+  return 'playing';
 }

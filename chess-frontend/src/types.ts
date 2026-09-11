@@ -21,6 +21,6 @@ export interface LastMove {
     type: PieceType;
 }
 
-export type GameStatus = 'playing' | 'checkmate' | 'stalemate';
+export type GameStatus = 'playing' |  'check' | 'checkmate' | 'stalemate';
 
 export type PendingPromotion = { row: number; col: number; color: Color } | null;

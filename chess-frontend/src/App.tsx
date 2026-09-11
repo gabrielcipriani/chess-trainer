@@ -6,6 +6,7 @@ import { movePiece } from './moveHandler.ts';
 import { checkStatus } from './checkStatus.ts';
 
 import type { Position, Color, LastMove, GameStatus, PendingPromotion, PieceType } from './types.ts';
+import { moveSelf, moveOpponent, illegal, capture, castle, gameEnd, moveCheck, promote } from './sounds.ts';
 
 export function App() {
   const [board, setBoard] = useState(boardState);
@@ -26,8 +27,8 @@ export function App() {
     : null;
 
   function handleSquareClick(row: number, col: number): void {
-    // guard clause for promotion menu
-    if (pendingPromotion) return;
+    // guard clause for promotion menu, checkmate, or stalemate to not allow any moves
+    if (pendingPromotion || (status === 'checkmate') || (status === 'stalemate')) return;
 
     const piece = board[row][col];
 
@@ -66,6 +67,19 @@ export function App() {
         setLastMove(moveResult.newLastMove);
         setSelectedSquare(null);
 
+        // sound effects
+        if (moveResult.isCapture) {
+          capture.play();
+        } else if (moveResult.isCastling) {
+          castle.play();
+        } else {
+          if (turn === 'w') {
+            moveSelf.play();
+          } else {
+            moveOpponent.play();
+          }
+        }
+
         // promotion check
         if (moveResult.isPromotion) {
           setPendingPromotion({row, col, color: turn});
@@ -78,6 +92,7 @@ export function App() {
 
         setStatus(checkStatus(moveResult.newBoard, newTurn, moveResult.newLastMove));
       } else {
+        illegal.play();
         setSelectedSquare(null);
       }
     }
@@ -89,6 +104,7 @@ export function App() {
     const newBoard = structuredClone(board);
     newBoard[squareToUpdate.row][squareToUpdate.col]!.type = chosenType;
     setBoard(newBoard);
+    promote.play();
     // reset promotion state
     setPendingPromotion(null);
 

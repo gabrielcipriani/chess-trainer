@@ -28,6 +28,8 @@ export function movePiece(
     to: { row: toRow, col: toCol },
     type: originSquare.type,
   };
+  // Check for capture
+  const isCapture = board[toRow][toCol] !== null;
 
   // Castling if king moves two squares either side
   const isCastling =
@@ -70,28 +72,6 @@ export function movePiece(
     // remove passed pawm
     newBoard[fromRow][toCol] = null;
   }
-
-  return { newBoard, newLastMove, isCastling, isEnPassant, isPromotion };
-}
-
-export function animateMove(
-  pieceImg: HTMLImageElement,
-  originElement: Element,
-  destinationElement: Element,
-) {
-  if (!pieceImg) {
-    throw new Error(`Moving piece is missing its image`);
-  }
-  // Measure origin and destination squares
-  const originRect = originElement.getBoundingClientRect();
-  const destinationRect = destinationElement.getBoundingClientRect();
-  const x = originRect.left - destinationRect.left;
-  const y = originRect.top - destinationRect.top;
-  // Shift back to starting square
-  pieceImg.style.transform = `translate(${x}px, ${y}px)`;
-  // Slide to destination
-  requestAnimationFrame(() => {
-    pieceImg.style.transition = 'transform 0.3s';
-    pieceImg.style.transform = 'translate(0, 0)';
-  });
+  
+  return { newBoard, newLastMove, isCastling, isEnPassant, isPromotion, isCapture };
 }
