@@ -67,11 +67,34 @@ export function App() {
         setLastMove(moveResult.newLastMove);
         setSelectedSquare(null);
 
-        // sound effects
-        if (moveResult.isCapture) {
-          capture.play();
+        // promotion check
+        if (moveResult.isPromotion) {
+          setPendingPromotion({row, col, color: turn});
+          // sound effects
+          if (moveResult.isCapture) {
+            capture.play();
+          } else {
+            if (turn === 'w') {
+              moveSelf.play();
+            } else {
+              moveOpponent.play();
+            }
+          }
+          return;
+        }
+
+        // attempt to change turns
+        const newTurn = turn === 'w' ? 'b' : 'w';
+        const newStatus = checkStatus(moveResult.newBoard, newTurn, moveResult.newLastMove);
+        // sound effect
+        if (newStatus === 'checkmate' || newStatus === 'stalemate') {
+          gameEnd.play();
+        } else if (newStatus === 'check') {
+          moveCheck.play();
         } else if (moveResult.isCastling) {
           castle.play();
+        } else if (moveResult.isCapture) {
+          capture.play();
         } else {
           if (turn === 'w') {
             moveSelf.play();
@@ -79,18 +102,8 @@ export function App() {
             moveOpponent.play();
           }
         }
-
-        // promotion check
-        if (moveResult.isPromotion) {
-          setPendingPromotion({row, col, color: turn});
-          return;
-        }
-
-        // attempt to change turns
-        const newTurn = turn === 'w' ? 'b' : 'w';
         setTurn(newTurn);
-
-        setStatus(checkStatus(moveResult.newBoard, newTurn, moveResult.newLastMove));
+        setStatus(newStatus);
       } else {
         illegal.play();
         setSelectedSquare(null);
@@ -104,13 +117,22 @@ export function App() {
     const newBoard = structuredClone(board);
     newBoard[squareToUpdate.row][squareToUpdate.col]!.type = chosenType;
     setBoard(newBoard);
-    promote.play();
-    // reset promotion state
-    setPendingPromotion(null);
 
     const newTurn = turn === 'w' ? 'b' : 'w';
+    const newStatus = checkStatus(newBoard, newTurn, lastMove!);
+
+    // sound effect
+    if (newStatus === 'checkmate' || newStatus === 'stalemate') {
+      gameEnd.play();
+    } else if (newStatus === 'check') {
+      moveCheck.play();
+    } else {
+      promote.play();
+    }
+
     setTurn(newTurn);
-    setStatus(checkStatus(newBoard, newTurn, lastMove!));
+    setStatus(newStatus);
+    setPendingPromotion(null);
   }
   
 
