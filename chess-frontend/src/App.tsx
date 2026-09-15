@@ -189,8 +189,19 @@ export function App() {
     setDragPosition({ x, y });
   }
 
-  function handleDragEnd(): void {
+  function handleDragEnd(x: number, y: number): void {
     setDragPosition(null);
+    // Find closest square to pointer coordinates
+    const targetElement = document.elementFromPoint(x, y)?.closest('[data-row]');
+    
+    if (!targetElement) {
+      return;
+    }
+
+    const targetRow = Number(targetElement.getAttribute('data-row'));
+    const targetCol = Number(targetElement.getAttribute('data-col'));
+
+    console.log(`Square selected at ${targetRow}, ${targetCol}`)
   }
 
   return (

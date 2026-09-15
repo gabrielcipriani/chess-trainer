@@ -6,6 +6,8 @@ import type {
 
 function SquareCell({
   piece,
+  row,
+  col,
   isSelected,
   isValidDestination,
   onClick,
@@ -14,15 +16,22 @@ function SquareCell({
   onDragEnd,
 }: {
   piece: SquareType;
+  row: number;
+  col: number;
   isSelected: boolean;
   isValidDestination: boolean;
   onClick: () => void;
   onGrab: (x: number, y: number) => void;
   onDragMove: (x: number, y: number) => void;
-  onDragEnd: () => void;
+  onDragEnd: (x: number, y: number) => void;
 }) {
   return (
-    <div className={`square${isSelected ? ' selected' : ''}`} onClick={onClick}>
+    <div
+      className={`square${isSelected ? ' selected' : ''}`}
+      data-row={row}
+      data-col={col}
+      onClick={onClick}
+    >
       {piece && (
         <img
           src={`/pieces/${piece.type}${piece.color}.svg`}
@@ -34,7 +43,9 @@ function SquareCell({
           onPointerMove={(event) => {
             onDragMove(event.clientX, event.clientY);
           }}
-          onPointerUp={onDragEnd}
+          onPointerUp={(event) => {
+            onDragEnd(event.clientX, event.clientY);
+          }}
         />
       )}
       {isValidDestination && <div className="valid-move-marker"></div>}
@@ -62,7 +73,7 @@ export function Board({
     y: number,
   ) => void;
   onDragMove: (x: number, y: number) => void;
-  onDragEnd: () => void;
+  onDragEnd: (x: number, y: number) => void;
 }) {
   return (
     <div className="board">
@@ -71,6 +82,8 @@ export function Board({
           <SquareCell
             key={`${rowIndex}-${colIndex}`}
             piece={piece}
+            row={rowIndex}
+            col={colIndex}
             isSelected={
               selectedSquare?.row === rowIndex &&
               selectedSquare?.col === colIndex
