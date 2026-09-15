@@ -186,22 +186,24 @@ export function App() {
   }
 
   function handleDragMove(x: number, y: number): void {
+    if (dragPosition === null) return;
     setDragPosition({ x, y });
   }
 
   function handleDragEnd(x: number, y: number): void {
     setDragPosition(null);
-    // Find closest square to pointer coordinates
+    // find closest square to pointer coordinates
     const targetElement = document.elementFromPoint(x, y)?.closest('[data-row]');
-    
+
     if (!targetElement) {
+      setSelectedSquare(null);
       return;
     }
 
     const targetRow = Number(targetElement.getAttribute('data-row'));
     const targetCol = Number(targetElement.getAttribute('data-col'));
 
-    console.log(`Square selected at ${targetRow}, ${targetCol}`)
+    handleSquareClick(targetRow, targetCol);
   }
 
   return (
