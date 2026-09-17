@@ -26,7 +26,7 @@ export function findPiece(board: Board, turn: Color, type: PieceType): [number, 
   return null;
 }
 
-export function isKingInCheck(board: Board, turn: Color) {
+export function isKingInCheck(board: Board, turn: Color): boolean {
   const kingPosition = findPiece(board, turn, 'k');
   if (!kingPosition) {
     throw new Error(`King not found for color ${turn}`);
