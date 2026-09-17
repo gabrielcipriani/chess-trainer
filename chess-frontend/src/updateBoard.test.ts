@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { it, expect } from 'vitest';
 import { updateBoard } from './updateBoard.ts';
 import type { Board, Square } from './types.ts';
 
