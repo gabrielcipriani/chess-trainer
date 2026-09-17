@@ -1,4 +1,4 @@
-import type { Board, Color, PieceType } from "./types.ts";
+import type { Board, Color, PieceType } from './types.ts';
 
 const DIRECTIONS = {
   FILE: [
@@ -15,7 +15,11 @@ const DIRECTIONS = {
   ],
 };
 
-export function findPiece(board: Board, turn: Color, type: PieceType): [number, number] | null {
+export function findPiece(
+  board: Board,
+  turn: Color,
+  type: PieceType,
+): [number, number] | null {
   for (const [rowIndex, row] of board.entries()) {
     for (const [colIndex, square] of row.entries()) {
       if (square?.type === type && square?.color === turn) {
@@ -103,10 +107,7 @@ export function isKingInCheck(board: Board, turn: Color): boolean {
           break;
         }
         // Stop at opponent's piece; in check if occupied by rook or queen
-        else if (
-          piece.type === 'r' ||
-          piece.type === 'q'
-        ) {
+        else if (piece.type === 'r' || piece.type === 'q') {
           return true;
         } else {
           break;
@@ -136,10 +137,7 @@ export function isKingInCheck(board: Board, turn: Color): boolean {
           break;
         }
         // Stop at opponent's piece; in check if occupied by bishop or queen
-        else if (
-          piece.type === 'b' ||
-          piece.type === 'q'
-        ) {
+        else if (piece.type === 'b' || piece.type === 'q') {
           return true;
         } else {
           break;

@@ -193,7 +193,9 @@ export function App() {
   function handleDragEnd(x: number, y: number): void {
     setDragPosition(null);
     // find closest square to pointer coordinates
-    const targetElement = document.elementFromPoint(x, y)?.closest('[data-row]');
+    const targetElement = document
+      .elementFromPoint(x, y)
+      ?.closest('[data-row]');
 
     if (!targetElement) {
       setSelectedSquare(null);
@@ -228,8 +230,8 @@ export function App() {
               top: dragPosition.y,
               transform: 'translate(-50%, -50%)',
               pointerEvents: 'none',
-                width: '100px',
-                height: '100px',
+              width: '100px',
+              height: '100px',
             }}
           />
         )}

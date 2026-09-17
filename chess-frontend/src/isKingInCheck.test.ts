@@ -49,22 +49,21 @@ describe('knight checks', () => {
 });
 
 describe('rank/file checks', () => {
-  it('detects a rook giving check along open rank' , () => {
+  it('detects a rook giving check along open rank', () => {
     const board: Board = Array.from({ length: 8 }, () => Array(8).fill(null));
     board[0][0] = { type: 'k', color: 'w', hasMoved: false };
     board[0][2] = { type: 'r', color: 'b', hasMoved: false };
     expect(isKingInCheck(board, 'w')).toBe(true);
   });
 
-  it('detects a queen giving check along open rank' , () => {
+  it('detects a queen giving check along open rank', () => {
     const board: Board = Array.from({ length: 8 }, () => Array(8).fill(null));
     board[0][0] = { type: 'k', color: 'w', hasMoved: false };
     board[0][2] = { type: 'q', color: 'b', hasMoved: false };
     expect(isKingInCheck(board, 'w')).toBe(true);
   });
 
-
-  it('detects own piece blocking a check along a rank' , () => {
+  it('detects own piece blocking a check along a rank', () => {
     const board: Board = Array.from({ length: 8 }, () => Array(8).fill(null));
     board[0][0] = { type: 'k', color: 'w', hasMoved: false };
     board[0][1] = { type: 'p', color: 'w', hasMoved: false };
@@ -72,7 +71,7 @@ describe('rank/file checks', () => {
     expect(isKingInCheck(board, 'w')).toBe(false);
   });
 
-  it('detects non-threatening enemy piece blocking a check along rank' , () => {
+  it('detects non-threatening enemy piece blocking a check along rank', () => {
     const board: Board = Array.from({ length: 8 }, () => Array(8).fill(null));
     board[0][0] = { type: 'k', color: 'w', hasMoved: false };
     board[0][1] = { type: 'p', color: 'b', hasMoved: false };
@@ -82,22 +81,21 @@ describe('rank/file checks', () => {
 });
 
 describe('diagonal checks', () => {
-  it('detects a bishop giving check along an open diagonal' , () => {
+  it('detects a bishop giving check along an open diagonal', () => {
     const board: Board = Array.from({ length: 8 }, () => Array(8).fill(null));
     board[0][0] = { type: 'k', color: 'w', hasMoved: false };
     board[2][2] = { type: 'b', color: 'b', hasMoved: false };
     expect(isKingInCheck(board, 'w')).toBe(true);
   });
 
-  it('detects a queen giving check along an open diagonal' , () => {
+  it('detects a queen giving check along an open diagonal', () => {
     const board: Board = Array.from({ length: 8 }, () => Array(8).fill(null));
     board[0][0] = { type: 'k', color: 'w', hasMoved: false };
     board[2][2] = { type: 'q', color: 'b', hasMoved: false };
     expect(isKingInCheck(board, 'w')).toBe(true);
   });
 
-
-  it('detects own piece blocking a check along an open diagonal' , () => {
+  it('detects own piece blocking a check along an open diagonal', () => {
     const board: Board = Array.from({ length: 8 }, () => Array(8).fill(null));
     board[0][0] = { type: 'k', color: 'w', hasMoved: false };
     board[1][1] = { type: 'p', color: 'w', hasMoved: false };
@@ -105,7 +103,7 @@ describe('diagonal checks', () => {
     expect(isKingInCheck(board, 'w')).toBe(false);
   });
 
-  it('detects non-threatening enemy piece blocking a check along an open diagonal' , () => {
+  it('detects non-threatening enemy piece blocking a check along an open diagonal', () => {
     const board: Board = Array.from({ length: 8 }, () => Array(8).fill(null));
     board[0][0] = { type: 'k', color: 'w', hasMoved: false };
     board[1][1] = { type: 'p', color: 'b', hasMoved: false };

@@ -15,12 +15,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
           cache: 'npm'
           cache-dependency-path: chess-frontend/package-lock.json
 
@@ -29,6 +29,9 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Typecheck
+        run: npm run typecheck
 
       - name: Build
         run: npm run build
