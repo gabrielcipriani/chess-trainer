@@ -73,5 +73,9 @@ export function movePiece(
     newBoard[fromRow][toCol] = null;
   }
   
+  if (isPromotion) {
+    newBoard[toRow][toCol]!.type = 'q';
+  }
+
   return { newBoard, newLastMove, isCastling, isEnPassant, isPromotion, isCapture };
 }

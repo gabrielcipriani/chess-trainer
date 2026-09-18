@@ -16,11 +16,18 @@ export interface Position {
 }
 
 export interface LastMove {
-    from: Position;
-    to: Position;
-    type: PieceType;
+  from: Position;
+  to: Position;
+  type: PieceType;
 }
 
-export type GameStatus = 'playing' |  'check' | 'checkmate' | 'stalemate';
+export type GameStatus = 'playing' | 'check' | 'checkmate' | 'stalemate';
 
-export type PendingPromotion = { row: number; col: number; color: Color } | null;
+export interface GameState {
+  board: Board;
+  turn: Color;
+  lastMove: LastMove | null;
+  status: GameStatus;
+  halfmoves: number;
+  fullmoves: number;
+}

@@ -5,14 +5,7 @@ import { getValidMoves } from './getValidMoves.ts';
 import { movePiece } from './moveHandler.ts';
 import { checkStatus } from './checkStatus.ts';
 
-import type {
-  Position,
-  Color,
-  LastMove,
-  GameStatus,
-  PendingPromotion,
-  PieceType,
-} from './types.ts';
+import type { Position, Color, LastMove, GameStatus } from './types.ts';
 import {
   moveSelf,
   moveOpponent,
@@ -30,8 +23,6 @@ export function App() {
   const [turn, setTurn] = useState<Color>('w');
   const [lastMove, setLastMove] = useState<LastMove | null>(null);
   const [status, setStatus] = useState<GameStatus>('playing');
-  const [pendingPromotion, setPendingPromotion] =
-    useState<PendingPromotion>(null);
   const justGrabbedRef = useRef<Position | null>(null);
   const [dragPosition, setDragPosition] = useState<{
     x: number;
@@ -60,8 +51,7 @@ export function App() {
     }
 
     // guard clause for promotion menu, checkmate, or stalemate to not allow any moves
-    if (pendingPromotion || status === 'checkmate' || status === 'stalemate')
-      return;
+    if (status === 'checkmate' || status === 'stalemate') return;
 
     const piece = board[row][col];
 
@@ -100,23 +90,7 @@ export function App() {
         setLastMove(moveResult.newLastMove);
         setSelectedSquare(null);
 
-        // promotion check
-        if (moveResult.isPromotion) {
-          setPendingPromotion({ row, col, color: turn });
-          // sound effects
-          if (moveResult.isCapture) {
-            capture.play();
-          } else {
-            if (turn === 'w') {
-              moveSelf.play();
-            } else {
-              moveOpponent.play();
-            }
-          }
-          return;
-        }
-
-        // attempt to change turns
+        // change turns
         const newTurn = turn === 'w' ? 'b' : 'w';
         const newStatus = checkStatus(
           moveResult.newBoard,
@@ -132,6 +106,8 @@ export function App() {
           castle.play();
         } else if (moveResult.isCapture) {
           capture.play();
+        } else if (moveResult.isPromotion) {
+          promote.play();
         } else {
           if (turn === 'w') {
             moveSelf.play();
@@ -146,30 +122,6 @@ export function App() {
         setSelectedSquare(null);
       }
     }
-  }
-
-  function handlePromotionChoice(chosenType: PieceType): void {
-    const squareToUpdate = pendingPromotion!;
-    // promote piece
-    const newBoard = structuredClone(board);
-    newBoard[squareToUpdate.row][squareToUpdate.col]!.type = chosenType;
-    setBoard(newBoard);
-
-    const newTurn = turn === 'w' ? 'b' : 'w';
-    const newStatus = checkStatus(newBoard, newTurn, lastMove!);
-
-    // sound effect
-    if (newStatus === 'checkmate' || newStatus === 'stalemate') {
-      gameEnd.play();
-    } else if (newStatus === 'check') {
-      moveCheck.play();
-    } else {
-      promote.play();
-    }
-
-    setTurn(newTurn);
-    setStatus(newStatus);
-    setPendingPromotion(null);
   }
 
   function handleGrab(row: number, col: number, x: number, y: number): void {
@@ -240,54 +192,6 @@ export function App() {
         )}
         {status === 'stalemate' && (
           <div className="stalemate-menu">Stalemate!</div>
-        )}
-        {pendingPromotion && turn === 'w' && (
-          <div className="promotion-menu">
-            <img
-              src="/pieces/qw.svg"
-              alt="White Queen"
-              onClick={() => handlePromotionChoice('q')}
-            />
-            <img
-              src="/pieces/rw.svg"
-              alt="White Rook"
-              onClick={() => handlePromotionChoice('r')}
-            />
-            <img
-              src="/pieces/bw.svg"
-              alt="White Bishop"
-              onClick={() => handlePromotionChoice('b')}
-            />
-            <img
-              src="/pieces/nw.svg"
-              alt="White Knight"
-              onClick={() => handlePromotionChoice('n')}
-            />
-          </div>
-        )}
-        {pendingPromotion && turn === 'b' && (
-          <div className="promotion-menu">
-            <img
-              src="/pieces/qb.svg"
-              alt="Black Queen"
-              onClick={() => handlePromotionChoice('q')}
-            />
-            <img
-              src="/pieces/rb.svg"
-              alt="Black Rook"
-              onClick={() => handlePromotionChoice('r')}
-            />
-            <img
-              src="/pieces/bb.svg"
-              alt="Black Bishop"
-              onClick={() => handlePromotionChoice('b')}
-            />
-            <img
-              src="/pieces/nb.svg"
-              alt="Black Knight"
-              onClick={() => handlePromotionChoice('n')}
-            />
-          </div>
         )}
       </div>
     </>

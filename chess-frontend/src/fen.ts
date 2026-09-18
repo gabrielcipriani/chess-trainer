@@ -75,7 +75,8 @@ export function getFen(
     lastMove &&
     lastMove.type === 'p' &&
     Math.abs(lastMove.to.row - lastMove.from.row) === 2 &&
-    (board[lastMove.to.row][lastMove.to.col-1]?.type === 'p' || board[lastMove.to.row][lastMove.to.col+1]?.type === 'p')
+    (board[lastMove.to.row][lastMove.to.col - 1]?.type === 'p' ||
+      board[lastMove.to.row][lastMove.to.col + 1]?.type === 'p')
   ) {
     // get square notation for en passant target square (square behind pawn)
     const file = 'abcdefgh'[lastMove.from.col];
@@ -91,14 +92,3 @@ export function getFen(
   fen += `${halfMoves} ${fullMoves}`;
   return fen;
 }
-
-// go through every row and every col of board
-// get piece type, lowercase Black uppercase White
-// add / at the end of row
-// if empty space add 1 to counter
-// once no longer empty add counter + "/" and reset counter
-// add whose turn it is
-// add castling rights based on whether king has moved and which rook has moved
-// add en passant square (convert to square notation)
-// add halfmove clock (moves since last capture/pawn push)
-// add fullmove number, increments after Black moves
