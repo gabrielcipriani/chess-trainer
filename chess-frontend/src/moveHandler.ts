@@ -28,14 +28,6 @@ export function movePiece(
     to: { row: toRow, col: toCol },
     type: originSquare.type,
   };
-  // Check for capture
-  const isCapture = board[toRow][toCol] !== null;
-
-  // Castling if king moves two squares either side
-  const isCastling =
-    originSquare.type === 'k' &&
-    fromRow === toRow &&
-    Math.abs(fromCol - toCol) === 2;
 
   // En passant if current pawn moves diagonally into empty square
   const isEnPassant =
@@ -43,6 +35,15 @@ export function movePiece(
     originSquare.type === 'p' &&
     Math.abs(fromCol - toCol) === 1 &&
     board[toRow][toCol] === null;
+
+  // Check for capture
+  const isCapture = board[toRow][toCol] !== null || isEnPassant;
+
+  // Castling if king moves two squares either side
+  const isCastling =
+    originSquare.type === 'k' &&
+    fromRow === toRow &&
+    Math.abs(fromCol - toCol) === 2;
 
   // Pawn promotion if pawn on final rank
   const isPromotion = originSquare.type === 'p' && (toRow === 0 || toRow === 7);
