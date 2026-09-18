@@ -5,7 +5,7 @@ import type { Board, Color, LastMove, GameStatus } from './types.ts';
 export function checkStatus(
   board: Board,
   turn: Color,
-  lastMove: LastMove,
+  lastMove: LastMove | null,
 ): GameStatus {
   // Check if checkmate or stalemate
   if (!playerHasLegalMove(board, turn, lastMove)) {

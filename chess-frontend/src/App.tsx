@@ -1,11 +1,12 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useReducer } from 'react';
+import { gameReducer } from './gameReducer.ts'
 import { Board } from './Board.tsx';
 import { boardState } from './boardState.ts';
 import { getValidMoves } from './getValidMoves.ts';
 import { movePiece } from './moveHandler.ts';
 import { checkStatus } from './checkStatus.ts';
 
-import type { Position, Color, LastMove, GameStatus } from './types.ts';
+import type { Position, GameState } from './types.ts';
 import {
   moveSelf,
   moveOpponent,
@@ -18,16 +19,24 @@ import {
 } from './sounds.ts';
 
 export function App() {
-  const [board, setBoard] = useState(boardState);
   const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
-  const [turn, setTurn] = useState<Color>('w');
-  const [lastMove, setLastMove] = useState<LastMove | null>(null);
-  const [status, setStatus] = useState<GameStatus>('playing');
   const justGrabbedRef = useRef<Position | null>(null);
   const [dragPosition, setDragPosition] = useState<{
     x: number;
     y: number;
   } | null>(null);
+
+  const initialGameState: GameState = {
+    board: boardState,
+    turn: 'w',
+    lastMove: null,
+    halfmoveClock: 0,
+    fullmoveNumber: 1,
+  };
+
+  const [gameState, dispatch] = useReducer(gameReducer, initialGameState);
+  const { board, turn, lastMove } = gameState;
+  const status = checkStatus(board, turn, lastMove);
 
   const validMoves = selectedSquare
     ? getValidMoves(
@@ -76,7 +85,9 @@ export function App() {
       if (
         (validMoves ?? []).some((move) => move.row === row && move.col === col)
       ) {
-        // attempt to move piece
+
+        dispatch({ type: 'MOVE', from: selectedSquare, to: { row, col } })
+
         const moveResult = movePiece(
           board,
           selectedSquare.row,
@@ -86,17 +97,14 @@ export function App() {
           lastMove,
         );
 
-        setBoard(moveResult.newBoard);
-        setLastMove(moveResult.newLastMove);
-        setSelectedSquare(null);
-
-        // change turns
         const newTurn = turn === 'w' ? 'b' : 'w';
+
         const newStatus = checkStatus(
           moveResult.newBoard,
           newTurn,
           moveResult.newLastMove,
         );
+
         // sound effect
         if (newStatus === 'checkmate' || newStatus === 'stalemate') {
           gameEnd.play();
@@ -115,12 +123,10 @@ export function App() {
             moveOpponent.play();
           }
         }
-        setTurn(newTurn);
-        setStatus(newStatus);
       } else {
         illegal.play();
-        setSelectedSquare(null);
       }
+      setSelectedSquare(null);
     }
   }
 

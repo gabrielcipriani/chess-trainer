@@ -27,7 +27,10 @@ export interface GameState {
   board: Board;
   turn: Color;
   lastMove: LastMove | null;
-  status: GameStatus;
-  halfmoves: number;
-  fullmoves: number;
+  halfmoveClock: number;
+  fullmoveNumber: number;
 }
+
+export type GameAction =
+  | { type: 'MOVE'; from: Position; to: Position };
+  //TODO REDO/UNDO/RESET
