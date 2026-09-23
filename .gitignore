@@ -32,3 +32,6 @@ chess-backend/dist/
 *.njsproj
 *.sln
 *.sw?
+
+# Testing files
+chess-frontend/src/test.ts

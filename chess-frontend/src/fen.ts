@@ -87,8 +87,10 @@ export function getFen(
     fen += ` - `;
   }
 
-  const halfMoves = 0;
-  const fullMoves = 1;
-  fen += `${halfMoves} ${fullMoves}`;
+
+  // TODO calculate proper values for halfmoveClock and fullmoveNumber
+  const halfmoveClock = 0;
+  const fullmoveNumber = 1;
+  fen += `${halfmoveClock} ${fullmoveNumber}`;
   return fen;
 }

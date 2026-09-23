@@ -34,3 +34,34 @@ export interface GameState {
 export type GameAction =
   | { type: 'MOVE'; from: Position; to: Position };
   //TODO REDO/UNDO/RESET
+
+export interface ExplorerOpening {
+  eco: string;
+  name: string;
+}
+
+export interface ExplorerMove {
+  san: string;
+  uci: string;
+  white: number;
+  draws: number;
+  black: number;
+  opening: ExplorerOpening | null;
+}
+
+export interface ExplorerResponse {
+  white: number;
+  draws: number;
+  black: number;
+  moves: ExplorerMove[];
+  opening: ExplorerOpening | null;
+}
+
+interface CandidateMove {
+  san: string;
+  uci: string;
+  playedPercent: number;
+  whitePercent: number;
+  drawPercent: number;
+  blackPercent: number;
+}
