@@ -6,7 +6,9 @@ import { getValidMoves } from './getValidMoves.ts';
 import { movePiece } from './moveHandler.ts';
 import { checkStatus } from './checkStatus.ts';
 import { CandidateMovesPanel } from './CandidateMovesPanel.tsx';
+import { toCandidateMoves } from './candidateMoves.ts';
 import { getFen } from './fen.ts';
+import { fetchOpeningStats } from './lichessApi.ts';
 
 import type { Position, GameState, CandidateMove } from './types.ts';
 import {
@@ -22,6 +24,7 @@ import {
 
 export function App() {
   const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
+  const [candidateMoves, setCandidateMoves] = useState<CandidateMove[] | []>([])
 
   const initialGameState: GameState = {
     board: boardState,
@@ -36,28 +39,15 @@ export function App() {
   const status = checkStatus(board, turn, lastMove);
 
   const fen = getFen(gameState);
-  useEffect(() => console.log(fen), [fen])
-  // const lichessResponse = await fetchOpeningStats(fen);
 
-  const moves: CandidateMove[] = [
-    {
-      // hardcoded for now
-      san: 'e4',
-      uci: 'e2e4',
-      playedPercent: 50,
-      whitePercent: 55,
-      drawPercent: 2,
-      blackPercent: 43,
-    },
-    {
-      san: 'd4',
-      uci: 'd2d4',
-      playedPercent: 45,
-      whitePercent: 40,
-      drawPercent: 10,
-      blackPercent: 50,
-    },
-  ];
+  useEffect(() => {
+    async function loadStats() {
+      const response = await fetchOpeningStats(fen);
+      const candidateMoves = toCandidateMoves(response);
+      setCandidateMoves(candidateMoves);
+    }
+    loadStats();
+  }, [fen]);
 
   const validMoves = selectedSquare
     ? getValidMoves(
@@ -159,7 +149,7 @@ export function App() {
           )}
         </div>
         <div className="panel">
-          <CandidateMovesPanel moves={moves} />
+          <CandidateMovesPanel moves={candidateMoves} />
         </div>
       </div>
     </>
