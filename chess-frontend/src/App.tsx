@@ -24,7 +24,7 @@ import {
 
 export function App() {
   const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
-  const [candidateMoves, setCandidateMoves] = useState<CandidateMove[] | []>([])
+  const [candidateMoves, setCandidateMoves] = useState<CandidateMove[]>([])
 
   const initialGameState: GameState = {
     board: boardState,
@@ -41,12 +41,22 @@ export function App() {
   const fen = getFen(gameState);
 
   useEffect(() => {
+    let ignore = false;
+
     async function loadStats() {
       const response = await fetchOpeningStats(fen);
       const candidateMoves = toCandidateMoves(response);
+      if (!ignore) {
       setCandidateMoves(candidateMoves);
+      }
     }
+    
     loadStats();
+
+    // cleanup
+    return () => {
+      ignore = true;
+    }
   }, [fen]);
 
   const validMoves = selectedSquare
