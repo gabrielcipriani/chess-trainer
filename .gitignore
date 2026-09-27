@@ -35,3 +35,5 @@ chess-backend/dist/
 
 # Testing files
 chess-frontend/src/test.ts
+.vercel
+.env*
