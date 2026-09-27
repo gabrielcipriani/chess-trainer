@@ -1,9 +1,22 @@
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter-SemiBold.woff2");
+}
+
 body {
-  background-color: #a28089;
+  font-family: "Inter", sans-serif;
+  background: linear-gradient(0deg, rgb(249, 234, 220) 0%, rgb(233, 227, 217) 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
+}
+
+.main {
+  display: flex;
+  flex-direction: row;
+  gap: 50px;
 }
 
 .game-container {
@@ -11,8 +24,61 @@ body {
   grid-template-areas: 'overlay';
 }
 
-h1 {
+.panel {
+  height: 800px;
+  width: 400px;
+}
+
+.candidate-header {
+  display: grid;
+  grid-template-columns: 50px 1fr 1fr;
+  justify-items: center;
+  align-items: center;
+}
+
+.candidate-list {
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+
+.candidate-list li {
+  height:40px;
+  border-bottom: 1px solid #000000;
+  display: grid;
+  grid-template-columns: 50px 1fr 1fr;
+  justify-items: center;
+  align-items: center;
+}
+
+.result-bar {
+  height: 20px;
+  width: 100px;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.result-white {
+  background-color: white;
+  text-align: center;
+  color: black
+}
+
+.result-draw {
+  background-color: grey;
+}
+
+.result-black {
+  background-color: black;
+  text-align: center;
   color: white;
+}
+
+h1 {
+  color: black;
   text-align: center;
   user-select: none;
 }

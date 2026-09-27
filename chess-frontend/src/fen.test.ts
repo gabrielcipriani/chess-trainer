@@ -1,8 +1,8 @@
 import { it, expect } from 'vitest';
 import { getFen } from './fen.ts';
-import type { Board, Color, LastMove } from './types.ts'
+import type { Board, Color } from './types.ts'
 import { boardState } from './boardState.ts';
-import { updateBoard } from './updateBoard.ts';
+// import { updateBoard } from './updateBoard.ts';
 
 it('checks if default starting board returns correct FEN', () => {
   const board: Board = boardState;

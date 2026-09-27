@@ -57,7 +57,7 @@ export interface ExplorerResponse {
   opening: ExplorerOpening | null;
 }
 
-interface CandidateMove {
+export interface CandidateMove {
   san: string;
   uci: string;
   playedPercent: number;
