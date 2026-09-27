@@ -35,8 +35,8 @@ export function App() {
   const { board, turn, lastMove } = gameState;
   const status = checkStatus(board, turn, lastMove);
 
-  // const fen = getFen(board, turn, lastMove);
-  // useEffect(() => console.log(fen), [fen])
+  const fen = getFen(gameState);
+  useEffect(() => console.log(fen), [fen])
   // const lichessResponse = await fetchOpeningStats(fen);
 
   const moves: CandidateMove[] = [

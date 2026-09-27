@@ -1,10 +1,7 @@
-import type { Board, Color, LastMove } from './types.ts';
+import type { GameState } from './types.ts';
 
-export function getFen(
-  board: Board,
-  turn: Color,
-  lastMove: LastMove | null,
-): string {
+export function getFen(state: GameState): string {
+  const { board, turn, lastMove, halfmoveClock, fullmoveNumber } = state;
   let fen = '';
   let emptyCount = 0;
 
@@ -87,10 +84,6 @@ export function getFen(
     fen += ` - `;
   }
 
-
-  // TODO calculate proper values for halfmoveClock and fullmoveNumber
-  const halfmoveClock = 0;
-  const fullmoveNumber = 1;
   fen += `${halfmoveClock} ${fullmoveNumber}`;
   return fen;
 }
