@@ -2,13 +2,16 @@ import type {
   Board as BoardType,
   Square as SquareType,
   Position,
+  LastMove,
 } from './types.ts';
+import type { CSSProperties } from 'react';
 
 function SquareCell({
   piece,
   row,
   col,
   isSelected,
+  slideFrom,
   isValidDestination,
   onClick,
 }: {
@@ -16,6 +19,7 @@ function SquareCell({
   row: number;
   col: number;
   isSelected: boolean;
+  slideFrom: Position | null;
   isValidDestination: boolean;
   onClick: () => void;
 }) {
@@ -27,6 +31,11 @@ function SquareCell({
       onClick={onClick}
     >
       {piece && (
+        slideFrom ? 
+        <img className="moving" style={{ '--dx': `${100*(slideFrom.col-col)}%`, '--dy': `${100*(slideFrom.row-row)}%` } as CSSProperties}
+          src={`/pieces/${piece.type}${piece.color}.svg`}
+          alt={`${piece.color === 'w' ? 'White' : 'Black'} ${piece.type}`}
+        /> :
         <img
           src={`/pieces/${piece.type}${piece.color}.svg`}
           alt={`${piece.color === 'w' ? 'White' : 'Black'} ${piece.type}`}
@@ -40,11 +49,13 @@ function SquareCell({
 export function Board({
   board,
   selectedSquare,
+  lastMove,
   validMoves,
   onSquareClick,
 }: {
   board: BoardType;
   selectedSquare: Position | null;
+  lastMove: LastMove | null;
   validMoves: Position[] | null;
   onSquareClick: (rowIndex: number, colIndex: number) => void;
 }) {
@@ -60,6 +71,10 @@ export function Board({
             isSelected={
               selectedSquare?.row === rowIndex &&
               selectedSquare?.col === colIndex
+            }
+            slideFrom={
+              rowIndex === lastMove?.to.row &&
+              colIndex === lastMove?.to.col ? lastMove.from : null
             }
             isValidDestination={(validMoves ?? []).some(
               (move) => move.row === rowIndex && move.col === colIndex,

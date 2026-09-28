@@ -1,11 +1,26 @@
 @font-face {
-  font-family: "Inter";
-  src: url("/fonts/Inter-SemiBold.woff2");
+  font-family: 'Inter';
+  src: url('/fonts/Inter-SemiBold.woff2');
 }
 
+@keyframes slide-in {
+  from {
+    transform: translate(var(--dx), var(--dy));
+  }
+  to {
+    transform: translate(0, 0);
+  }
+}
+
+.moving { animation: slide-in 300ms }
+
 body {
-  font-family: "Inter", sans-serif;
-  background: linear-gradient(0deg, rgb(249, 234, 220) 0%, rgb(233, 227, 217) 100%);
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(
+    0deg,
+    rgb(249, 234, 220) 0%,
+    rgb(233, 227, 217) 100%
+  );
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -29,6 +44,62 @@ body {
   width: 400px;
 }
 
+
+.board {
+  grid-area: overlay;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-rows: repeat(8, minmax(0, 1fr));
+  width: 800px;
+  height: 800px;
+  background-image: url('./assets/board_olive.jpg');
+  background-size: cover;
+}
+
+.board img {
+  width: 100%;
+  height: 100%;
+}
+
+.square {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.square img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.coordinate-files {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  user-select: none;
+}
+
+.coordinate-ranks {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  user-select: none;
+}
+
+.selected {
+  background-color: rgba(245, 208, 0, 0.5);
+}
+
+.valid-move-marker {
+  width: 24px;
+  height: 24px;
+  background-color: rgba(245, 208, 0, 0.5);
+  border-radius: 50%;
+  position: absolute;
+  z-index: 2;
+}
+
 .candidate-header {
   display: grid;
   grid-template-columns: 50px 1fr 1fr;
@@ -37,13 +108,13 @@ body {
 }
 
 .candidate-list {
-  list-style:none;
-  padding:0;
-  margin:0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .candidate-list li {
-  height:40px;
+  height: 40px;
   border-bottom: 1px solid #000000;
   display: grid;
   grid-template-columns: 50px 1fr 1fr;
@@ -64,7 +135,7 @@ body {
 .result-white {
   background-color: white;
   text-align: center;
-  color: black
+  color: black;
 }
 
 .result-draw {
@@ -129,59 +200,4 @@ h1 {
   justify-self: center;
   align-self: center;
   z-index: 10;
-}
-
-.board {
-  grid-area: overlay;
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  grid-template-rows: repeat(8, minmax(0, 1fr));
-  width: 800px;
-  height: 800px;
-  background-image: url('./assets/board_olive.jpg');
-  background-size: cover;
-}
-
-.square {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.square img {
-  -webkit-user-drag: none;
-  user-select: none;
-}
-
-.board img {
-  width: 100%;
-  height: 100%;
-}
-
-.coordinate-files {
-  position: absolute;
-  bottom: 2px;
-  left: 2px;
-  user-select: none;
-}
-
-.coordinate-ranks {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  user-select: none;
-}
-
-.selected {
-  background-color: rgba(245, 208, 0, 0.5);
-}
-
-.valid-move-marker {
-  width: 24px;
-  height: 24px;
-  background-color: rgba(245, 208, 0, 0.5);
-  border-radius: 50%;
-  position: absolute;
-  z-index: 2;
 }

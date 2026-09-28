@@ -148,6 +148,7 @@ export function App() {
           <Board
             board={board}
             selectedSquare={selectedSquare}
+            lastMove={lastMove}
             validMoves={validMoves}
             onSquareClick={handleSquareClick}
           />
