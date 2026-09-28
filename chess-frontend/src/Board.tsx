@@ -32,11 +32,11 @@ function SquareCell({
     >
       {piece && (
         slideFrom ? 
-        <img className="moving" style={{ '--dx': `${100*(slideFrom.col-col)}%`, '--dy': `${100*(slideFrom.row-row)}%` } as CSSProperties}
+        <img key={`${slideFrom.row-slideFrom.col}`} className="moving" style={{ '--dx': `${100*(slideFrom.col-col)}%`, '--dy': `${100*(slideFrom.row-row)}%` } as CSSProperties}
           src={`/pieces/${piece.type}${piece.color}.svg`}
           alt={`${piece.color === 'w' ? 'White' : 'Black'} ${piece.type}`}
         /> :
-        <img
+        <img key={"fixed"}
           src={`/pieces/${piece.type}${piece.color}.svg`}
           alt={`${piece.color === 'w' ? 'White' : 'Black'} ${piece.type}`}
         />
