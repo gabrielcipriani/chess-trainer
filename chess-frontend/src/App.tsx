@@ -24,7 +24,7 @@ import {
 
 export function App() {
   const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
-  const [candidateMoves, setCandidateMoves] = useState<CandidateMove[]>([])
+  const [candidateMoves, setCandidateMoves] = useState<CandidateMove[]>([]);
 
   const initialGameState: GameState = {
     board: boardState,
@@ -34,12 +34,20 @@ export function App() {
     fullmoveNumber: 1,
   };
 
-  const [gameState, dispatch] = useReducer(gameReducer, initialGameState);
+  const initialGameHistory = {
+    history: [initialGameState],
+    currentIndex: 0,
+  };
+
+  const [gameHistory, dispatch] = useReducer(gameReducer, initialGameHistory);
+  // get latest state from history
+  const gameState = gameHistory.history[gameHistory.currentIndex];
   const { board, turn, lastMove } = gameState;
   const status = checkStatus(board, turn, lastMove);
 
   const fen = getFen(gameState);
 
+  // fetch new candidate moves when board/fen changes
   useEffect(() => {
     let ignore = false;
 
@@ -47,16 +55,16 @@ export function App() {
       const response = await fetchOpeningStats(fen);
       const candidateMoves = toCandidateMoves(response);
       if (!ignore) {
-      setCandidateMoves(candidateMoves);
+        setCandidateMoves(candidateMoves);
       }
     }
-    
+
     loadStats();
 
     // cleanup
     return () => {
       ignore = true;
-    }
+    };
   }, [fen]);
 
   const validMoves = selectedSquare

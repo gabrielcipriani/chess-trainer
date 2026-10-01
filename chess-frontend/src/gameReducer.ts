@@ -1,12 +1,18 @@
 import { movePiece } from './moveHandler.ts';
 
-import type { GameState, GameAction } from './types.ts';
+import type { GameState, GameAction, GameHistory } from './types.ts';
 
-export function gameReducer(state: GameState, action: GameAction): GameState {
+export function gameReducer(
+  gameHistory: GameHistory,
+  action: GameAction,
+): GameHistory {
   switch (action.type) {
     case 'MOVE': {
       const { row: fromRow, col: fromCol } = action.from;
       const { row: toRow, col: toCol } = action.to;
+
+      const currentIndex = gameHistory.currentIndex;
+      const state = gameHistory.history[currentIndex];
 
       const moveResult = movePiece(
         state.board,
@@ -23,22 +29,44 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         state.turn === 'b' ? state.fullmoveNumber + 1 : state.fullmoveNumber;
 
       // calculate halfmoves
-      // if pawn move or capture set to 0, otherwise +1
+      // if pawn move or capture set to 0, else add 1
       let newHalfmoveClock = state.halfmoveClock;
+
       if (moveResult.newLastMove.type === 'p' || moveResult.isCapture) {
         newHalfmoveClock = 0;
       } else {
         newHalfmoveClock++;
       }
 
+      // update history
+      const newHistory: GameState[] = [
+        ...gameHistory.history,
+        {
+          board: moveResult.newBoard,
+          turn: newTurn,
+          lastMove: moveResult.newLastMove,
+          halfmoveClock: newHalfmoveClock,
+          fullmoveNumber: newFullmoveNumber,
+        },
+      ];
+
       return {
-        board: moveResult.newBoard,
-        turn: newTurn,
-        lastMove: moveResult.newLastMove,
-        halfmoveClock: newHalfmoveClock,
-        fullmoveNumber: newFullmoveNumber,
+        history: newHistory,
+        currentIndex: currentIndex + 1,
       };
     }
-    //TODO REDO/UNDO/RESET
+
+    case 'UNDO': {
+      // guard clause for starting position
+      if (gameHistory.currentIndex === 0) {
+        return gameHistory;
+      }
+      // shift the index back 1; same history
+      return {
+        history: gameHistory.history,
+        currentIndex: gameHistory.currentIndex - 1,
+      };
+    }
+    //TODO: REDO/RESET
   }
 }

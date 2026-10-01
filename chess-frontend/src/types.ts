@@ -1,3 +1,5 @@
+import { Board } from './Board';
+
 export type Color = 'w' | 'b';
 export type PieceType = 'p' | 'n' | 'b' | 'r' | 'q' | 'k';
 
@@ -31,9 +33,15 @@ export interface GameState {
   fullmoveNumber: number;
 }
 
+export interface GameHistory {
+  history: GameState[];
+  currentIndex: number;
+}
+
 export type GameAction =
-  | { type: 'MOVE'; from: Position; to: Position };
-  //TODO REDO/UNDO/RESET
+  | { type: 'MOVE'; from: Position; to: Position }
+  | { type: 'UNDO'; board: Board; lastMove: LastMove };
+//TODO REDO/RESET
 
 export interface ExplorerOpening {
   eco: string;

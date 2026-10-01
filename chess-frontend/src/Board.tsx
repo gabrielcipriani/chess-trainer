@@ -30,17 +30,27 @@ function SquareCell({
       data-col={col}
       onClick={onClick}
     >
-      {piece && (
-        slideFrom ? 
-        <img key={`${slideFrom.row-slideFrom.col}`} className="moving" style={{ '--dx': `${100*(slideFrom.col-col)}%`, '--dy': `${100*(slideFrom.row-row)}%` } as CSSProperties}
-          src={`/pieces/${piece.type}${piece.color}.svg`}
-          alt={`${piece.color === 'w' ? 'White' : 'Black'} ${piece.type}`}
-        /> :
-        <img key={"fixed"}
-          src={`/pieces/${piece.type}${piece.color}.svg`}
-          alt={`${piece.color === 'w' ? 'White' : 'Black'} ${piece.type}`}
-        />
-      )}
+      {piece &&
+        (slideFrom ? (
+          <img
+            key={`${slideFrom.row - slideFrom.col}`}
+            className="moving"
+            style={
+              {
+                '--dx': `${100 * (slideFrom.col - col)}%`,
+                '--dy': `${100 * (slideFrom.row - row)}%`,
+              } as CSSProperties
+            }
+            src={`/pieces/${piece.type}${piece.color}.svg`}
+            alt={`${piece.color === 'w' ? 'White' : 'Black'} ${piece.type}`}
+          />
+        ) : (
+          <img
+            key={'fixed'}
+            src={`/pieces/${piece.type}${piece.color}.svg`}
+            alt={`${piece.color === 'w' ? 'White' : 'Black'} ${piece.type}`}
+          />
+        ))}
       {isValidDestination && <div className="valid-move-marker"></div>}
     </div>
   );
@@ -73,8 +83,9 @@ export function Board({
               selectedSquare?.col === colIndex
             }
             slideFrom={
-              rowIndex === lastMove?.to.row &&
-              colIndex === lastMove?.to.col ? lastMove.from : null
+              rowIndex === lastMove?.to.row && colIndex === lastMove?.to.col
+                ? lastMove.from
+                : null
             }
             isValidDestination={(validMoves ?? []).some(
               (move) => move.row === rowIndex && move.col === colIndex,
