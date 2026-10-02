@@ -10,7 +10,12 @@ import { toCandidateMoves } from './candidateMoves.ts';
 import { getFen } from './fen.ts';
 import { fetchOpeningStats } from './lichessApi.ts';
 
-import type { Position, GameState, CandidateMove } from './types.ts';
+import type {
+  Position,
+  GameState,
+  CandidateMove,
+  GameHistory,
+} from './types.ts';
 import {
   moveSelf,
   moveOpponent,
@@ -34,9 +39,10 @@ export function App() {
     fullmoveNumber: 1,
   };
 
-  const initialGameHistory = {
+  const initialGameHistory: GameHistory = {
     history: [initialGameState],
     currentIndex: 0,
+    direction: 'fwd',
   };
 
   const [gameHistory, dispatch] = useReducer(gameReducer, initialGameHistory);
@@ -44,6 +50,20 @@ export function App() {
   const gameState = gameHistory.history[gameHistory.currentIndex];
   const { board, turn, lastMove } = gameState;
   const status = checkStatus(board, turn, lastMove);
+  const animatedMove =
+    gameHistory.direction === 'fwd'
+      ? lastMove
+      : gameHistory.history[gameHistory.currentIndex + 1].lastMove;
+  let slide = null;
+  if (animatedMove) {
+    slide =
+      gameHistory.direction === 'fwd'
+        ? { from: animatedMove.from, to: animatedMove.to }
+        : {
+            from: animatedMove.to,
+            to: animatedMove.from,
+          };
+  }
 
   const fen = getFen(gameState);
 
@@ -71,9 +91,8 @@ export function App() {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'ArrowLeft') {
         dispatch({ type: 'UNDO' });
-      }
-      else if (event.key === 'ArrowRight') {
-        dispatch( {type: 'REDO' });
+      } else if (event.key === 'ArrowRight') {
+        dispatch({ type: 'REDO' });
       }
     }
 
@@ -174,7 +193,7 @@ export function App() {
           <Board
             board={board}
             selectedSquare={selectedSquare}
-            lastMove={lastMove}
+            slide={slide}
             validMoves={validMoves}
             onSquareClick={handleSquareClick}
           />

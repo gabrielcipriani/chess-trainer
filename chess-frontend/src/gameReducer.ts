@@ -53,6 +53,7 @@ export function gameReducer(
       return {
         history: newHistory,
         currentIndex: currentIndex + 1,
+        direction: 'fwd',
       };
     }
 
@@ -65,6 +66,7 @@ export function gameReducer(
       return {
         history: gameHistory.history,
         currentIndex: gameHistory.currentIndex - 1,
+        direction: 'back',
       };
     }
 
@@ -77,6 +79,7 @@ export function gameReducer(
       return {
         history: gameHistory.history,
         currentIndex: gameHistory.currentIndex + 1,
+        direction: 'fwd',
       };
     }
     //TODO: RESET

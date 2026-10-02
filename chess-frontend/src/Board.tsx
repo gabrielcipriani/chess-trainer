@@ -2,7 +2,6 @@ import type {
   Board as BoardType,
   Square as SquareType,
   Position,
-  LastMove,
 } from './types.ts';
 import type { CSSProperties } from 'react';
 
@@ -33,7 +32,7 @@ function SquareCell({
       {piece &&
         (slideFrom ? (
           <img
-            key={`${slideFrom.row - slideFrom.col}`}
+            key={`${slideFrom.row} - ${slideFrom.col}`}
             className="moving"
             style={
               {
@@ -59,13 +58,13 @@ function SquareCell({
 export function Board({
   board,
   selectedSquare,
-  lastMove,
+  slide,
   validMoves,
   onSquareClick,
 }: {
   board: BoardType;
   selectedSquare: Position | null;
-  lastMove: LastMove | null;
+  slide: { from: Position; to: Position } | null;
   validMoves: Position[] | null;
   onSquareClick: (rowIndex: number, colIndex: number) => void;
 }) {
@@ -83,8 +82,8 @@ export function Board({
               selectedSquare?.col === colIndex
             }
             slideFrom={
-              rowIndex === lastMove?.to.row && colIndex === lastMove?.to.col
-                ? lastMove.from
+              rowIndex === slide?.to.row && colIndex === slide?.to.col
+                ? slide.from
                 : null
             }
             isValidDestination={(validMoves ?? []).some(

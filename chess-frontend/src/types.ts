@@ -36,6 +36,7 @@ export interface GameState {
 export interface GameHistory {
   history: GameState[];
   currentIndex: number;
+  direction: 'fwd' | 'back';
 }
 
 export type GameAction =
