@@ -40,8 +40,9 @@ export interface GameHistory {
 
 export type GameAction =
   | { type: 'MOVE'; from: Position; to: Position }
-  | { type: 'UNDO'; board: Board; lastMove: LastMove };
-//TODO REDO/RESET
+  | { type: 'UNDO' }
+  | { type: 'REDO' };
+//TODO RESET
 
 export interface ExplorerOpening {
   eco: string;

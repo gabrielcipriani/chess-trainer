@@ -67,6 +67,18 @@ export function gameReducer(
         currentIndex: gameHistory.currentIndex - 1,
       };
     }
-    //TODO: REDO/RESET
+
+    case 'REDO': {
+      // guard clause for starting position
+      if (gameHistory.currentIndex === gameHistory.history.length - 1) {
+        return gameHistory;
+      }
+      // shift the index forwards 1; same history
+      return {
+        history: gameHistory.history,
+        currentIndex: gameHistory.currentIndex + 1,
+      };
+    }
+    //TODO: RESET
   }
 }

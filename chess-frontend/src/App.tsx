@@ -67,6 +67,24 @@ export function App() {
     };
   }, [fen]);
 
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'ArrowLeft') {
+        dispatch({ type: 'UNDO' });
+      }
+      else if (event.key === 'ArrowRight') {
+        dispatch( {type: 'REDO' });
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    // cleanup
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   const validMoves = selectedSquare
     ? getValidMoves(
         board,
