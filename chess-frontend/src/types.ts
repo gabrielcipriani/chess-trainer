@@ -75,3 +75,9 @@ export interface CandidateMove {
   drawPercent: number;
   blackPercent: number;
 }
+
+export interface RepertoireNode {
+  candidateMoves: CandidateMove[]
+  move: string;
+  children: RepertoireNode[]
+}
