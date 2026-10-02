@@ -40,7 +40,8 @@ export function gameReducer(
 
       // update history
       const newHistory: GameState[] = [
-        ...gameHistory.history,
+        // throw away future history on new move
+        ...gameHistory.history.slice(0, currentIndex + 1),
         {
           board: moveResult.newBoard,
           turn: newTurn,
