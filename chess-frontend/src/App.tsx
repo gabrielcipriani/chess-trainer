@@ -35,6 +35,7 @@ export function App() {
     board: boardState,
     turn: 'w',
     lastMove: null,
+    san: null,
     halfmoveClock: 0,
     fullmoveNumber: 1,
   };

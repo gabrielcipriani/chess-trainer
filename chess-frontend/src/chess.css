@@ -44,6 +44,11 @@ body {
   width: 400px;
 }
 
+.move-timeline {
+  height: 200px;
+  width: 400px;
+}
+
 
 .board {
   grid-area: overlay;

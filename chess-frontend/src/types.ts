@@ -1,5 +1,3 @@
-import { Board } from './Board';
-
 export type Color = 'w' | 'b';
 export type PieceType = 'p' | 'n' | 'b' | 'r' | 'q' | 'k';
 
@@ -29,6 +27,7 @@ export interface GameState {
   board: Board;
   turn: Color;
   lastMove: LastMove | null;
+  san: string | null;
   halfmoveClock: number;
   fullmoveNumber: number;
 }
@@ -77,7 +76,6 @@ export interface CandidateMove {
 }
 
 export interface RepertoireNode {
-  candidateMoves: CandidateMove[]
-  move: string;
-  children: RepertoireNode[]
+  move: string | null;
+  children: RepertoireNode[];
 }
