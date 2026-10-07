@@ -9,6 +9,7 @@ const initialGameState: GameState = {
   lastMove: null,
   halfmoveClock: 0,
   fullmoveNumber: 1,
+  san: null,
 };
 
 it('checks if default starting board returns correct FEN', () => {

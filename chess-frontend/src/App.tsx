@@ -9,9 +9,10 @@ import { CandidateMovesPanel } from './CandidateMovesPanel.tsx';
 import { toCandidateMoves } from './candidateMoves.ts';
 import { getFen } from './fen.ts';
 import { fetchOpeningStats } from './lichessApi.ts';
+import { MoveTimeline } from './MoveTimeline.tsx'
 
 import type {
-  Position,
+  Position, 
   GameState,
   CandidateMove,
   GameHistory,
@@ -205,8 +206,9 @@ export function App() {
             <div className="stalemate-menu">Stalemate!</div>
           )}
         </div>
-        <div className="panel">
+        <div className="side-panel">
           <CandidateMovesPanel moves={candidateMoves} />
+          <MoveTimeline positions={gameHistory.history}/>
         </div>
       </div>
     </>

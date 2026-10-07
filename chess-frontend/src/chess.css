@@ -39,16 +39,24 @@ body {
   grid-template-areas: 'overlay';
 }
 
-.panel {
+.side-panel {
   height: 800px;
   width: 400px;
 }
 
 .move-timeline {
-  height: 200px;
+  display: flex;
+  overflow-x: auto;
+  padding: 5px;
+  gap: 10px;
+  height: 80px;
   width: 400px;
+  scrollbar-width: none;
 }
 
+.move {
+  flex-shrink: 0;
+}
 
 .board {
   grid-area: overlay;
