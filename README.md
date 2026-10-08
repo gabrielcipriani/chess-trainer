@@ -48,7 +48,7 @@ Tests cover FEN generation, board updates and check detection. CI runs the tests
 
 - [ ] Play a move by clicking it in the candidate moves panel
 - [x] Piece movement animation
-- [ ] Move history in standard notation
+- [x] Move history in standard notation
 - [x] Undo/Redo functionality
 - [ ] Repertoire building: save lines and track coverage
 - [ ] Engine evaluations
