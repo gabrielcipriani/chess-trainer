@@ -40,6 +40,7 @@ export function findNode(
  * Returns a new tree with `move` added after `path`. The original tree is never modified.
  * If the move already exists there, returns `node` unchanged.
  * @param path Moves in UCI, starting from `node`.
+ * @param move Move in UCI to add.
  */
 export function addMove(
   node: RepertoireNode,

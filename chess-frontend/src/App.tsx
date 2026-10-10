@@ -9,13 +9,15 @@ import { CandidateMovesPanel } from './CandidateMovesPanel.tsx';
 import { toCandidateMoves } from './candidateMoves.ts';
 import { getFen } from './fen.ts';
 import { fetchOpeningStats } from './lichessApi.ts';
-import { MoveTimeline } from './MoveTimeline.tsx'
+import { MoveTimeline } from './MoveTimeline.tsx';
+import { getPath, findNode, addMove } from './repertoire.ts';
 
 import type {
-  Position, 
+  Position,
   GameState,
   CandidateMove,
   GameHistory,
+  RepertoireNode,
 } from './types.ts';
 import {
   moveSelf,
@@ -28,30 +30,48 @@ import {
   promote,
 } from './sounds.ts';
 
+const initialGameState: GameState = {
+  board: boardState,
+  turn: 'w',
+  lastMove: null,
+  san: null,
+  halfmoveClock: 0,
+  fullmoveNumber: 1,
+};
+
+const initialGameHistory: GameHistory = {
+  history: [initialGameState],
+  currentIndex: 0,
+  direction: 'fwd',
+};
+
+const initialRepertoire: RepertoireNode = {
+  move: null,
+  children: [],
+};
+
 export function App() {
   const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
   const [candidateMoves, setCandidateMoves] = useState<CandidateMove[]>([]);
-
-  const initialGameState: GameState = {
-    board: boardState,
-    turn: 'w',
-    lastMove: null,
-    san: null,
-    halfmoveClock: 0,
-    fullmoveNumber: 1,
-  };
-
-  const initialGameHistory: GameHistory = {
-    history: [initialGameState],
-    currentIndex: 0,
-    direction: 'fwd',
-  };
-
+  const [repertoire, setRepertoire] =
+    useState<RepertoireNode>(initialRepertoire);
   const [gameHistory, dispatch] = useReducer(gameReducer, initialGameHistory);
   // get latest state from history
   const gameState = gameHistory.history[gameHistory.currentIndex];
   const { board, turn, lastMove } = gameState;
+
   const status = checkStatus(board, turn, lastMove);
+  const path = getPath(gameHistory);
+  console.log('Path so far:', path);
+  const currentNode = findNode(repertoire, path);
+  console.log('Current node:', currentNode);
+  // saved moves at this position
+  const savedMoves =
+    currentNode?.children
+      .map((child) => child.move)
+      .filter((move) => move !== null) ?? [];
+  console.log('Saved moves at this position:', savedMoves);
+
   const animatedMove =
     gameHistory.direction === 'fwd'
       ? lastMove
@@ -187,6 +207,11 @@ export function App() {
     }
   }
 
+  function handleCandidateClick(uci: string) {
+    const newRepertoire = addMove(repertoire, path, uci);
+    setRepertoire(newRepertoire);
+  }
+
   return (
     <>
       {/* <h1>Chess Trainer</h1> */}
@@ -207,8 +232,12 @@ export function App() {
           )}
         </div>
         <div className="side-panel">
-          <CandidateMovesPanel moves={candidateMoves} />
-          <MoveTimeline positions={gameHistory.history}/>
+          <CandidateMovesPanel
+            moves={candidateMoves}
+            savedMoves={savedMoves}
+            onMoveClick={handleCandidateClick}
+          />
+          <MoveTimeline positions={gameHistory.history} />
         </div>
       </div>
     </>
