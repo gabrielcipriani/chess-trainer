@@ -12,9 +12,9 @@ export function MoveTimeline( { positions }: { positions: GameState[] }) {
 
   return (
     <div className="move-timeline" ref={barRef}> 
-      {positions.slice(1).map((state) => {
+      {positions.slice(1).map((state, index) => {
         // numbers only on white moves
-        return <div className="move">{state.turn === 'b' ? state.fullmoveNumber + '.' : ''}{state.san}</div>;
+        return <div key={index} className="move">{state.turn === 'b' ? state.fullmoveNumber + '.' : ''}{state.san}</div>;
       })}
     </div>
   );
