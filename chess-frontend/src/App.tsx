@@ -29,6 +29,7 @@ import {
   moveCheck,
   promote,
 } from './sounds.ts';
+import { fromUci } from './uci.ts';
 
 const initialGameState: GameState = {
   board: boardState,
@@ -208,6 +209,8 @@ export function App() {
   }
 
   function handleCandidateClick(uci: string) {
+    const { from, to } = fromUci(uci);
+    dispatch({ type: 'MOVE', from, to });
     const newRepertoire = addMove(repertoire, path, uci);
     setRepertoire(newRepertoire);
   }

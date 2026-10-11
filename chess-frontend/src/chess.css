@@ -12,7 +12,9 @@
   }
 }
 
-.moving { animation: slide-in 300ms }
+.moving {
+  animation: slide-in 300ms;
+}
 
 body {
   font-family: 'Inter', sans-serif;

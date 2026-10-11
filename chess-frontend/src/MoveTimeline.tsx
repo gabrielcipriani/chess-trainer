@@ -1,7 +1,7 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react';
 import type { GameState } from './types.ts';
 
-export function MoveTimeline( { positions }: { positions: GameState[] }) {
+export function MoveTimeline({ positions }: { positions: GameState[] }) {
   const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -11,10 +11,15 @@ export function MoveTimeline( { positions }: { positions: GameState[] }) {
   }, [positions]);
 
   return (
-    <div className="move-timeline" ref={barRef}> 
+    <div className="move-timeline" ref={barRef}>
       {positions.slice(1).map((state, index) => {
         // numbers only on white moves
-        return <div key={index} className="move">{state.turn === 'b' ? state.fullmoveNumber + '.' : ''}{state.san}</div>;
+        return (
+          <div key={index} className="move">
+            {state.turn === 'b' ? state.fullmoveNumber + '.' : ''}
+            {state.san}
+          </div>
+        );
       })}
     </div>
   );

@@ -1,4 +1,4 @@
-import type { Board } from "./types.ts";
+import type { Board } from './types.ts';
 
 // Starting board state
 export const boardState: Board = [
