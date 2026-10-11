@@ -34,6 +34,6 @@ chess-backend/dist/
 *.sw?
 
 # Testing files
-chess-frontend/test.ts
+chess-frontend/scratch.ts
 .vercel
 .env*

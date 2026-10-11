@@ -11,6 +11,7 @@ import { getFen } from './fen.ts';
 import { fetchOpeningStats } from './lichessApi.ts';
 import { MoveTimeline } from './MoveTimeline.tsx';
 import { getPath, findNode, addMove } from './repertoire.ts';
+import { toUci } from './uci.ts'
 
 import type {
   Position,
@@ -58,7 +59,7 @@ export function App() {
     moves: CandidateMove[];
   } | null>(null);
   // const [candidateMoves, setCandidateMoves] = useState<CandidateMove[]>([]);
-  const [repertoire, setRepertoire] =
+  const [draft, setDraft] =
     useState<RepertoireNode>(initialRepertoire);
   const [gameHistory, dispatch] = useReducer(gameReducer, initialGameHistory);
 
@@ -68,14 +69,13 @@ export function App() {
   const status = checkStatus(board, turn, lastMove);
 
   const path = getPath(gameHistory);
-  const currentNode = findNode(repertoire, path);
+  const currentNode = findNode(draft, path);
 
   // saved moves at this position
   const savedMoves =
     currentNode?.children
       .map((child) => child.move)
       .filter((move) => move !== null) ?? [];
-  console.log('Saved moves at this position:', savedMoves);
 
   const animatedMove =
     gameHistory.direction === 'fwd'
@@ -183,6 +183,10 @@ export function App() {
         moveOpponent.play();
       }
     }
+
+    const uci = toUci(moveResult.newLastMove);
+    const newRepertoire = addMove(draft, path, uci);
+    setDraft(newRepertoire);
   }
 
   function handleSquareClick(row: number, col: number): void {
@@ -226,11 +230,9 @@ export function App() {
   function handleCandidateClick(uci: string) {
     const { from, to } = fromUci(uci);
     playMove(from, to);
-    const newRepertoire = addMove(repertoire, path, uci);
-    setRepertoire(newRepertoire);
   }
 
-  return (
+  return (  
     <>
       {/* <h1>Chess Trainer</h1> */}
       <div className="main">
@@ -250,12 +252,12 @@ export function App() {
           )}
         </div>
         <div className="side-panel">
+          <MoveTimeline positions={gameHistory.history} />
           <CandidateMovesPanel
             moves={visibleMoves}
             savedMoves={savedMoves}
             onMoveClick={handleCandidateClick}
           />
-          <MoveTimeline positions={gameHistory.history} />
         </div>
       </div>
     </>
