@@ -57,15 +57,15 @@ export function App() {
   const [repertoire, setRepertoire] =
     useState<RepertoireNode>(initialRepertoire);
   const [gameHistory, dispatch] = useReducer(gameReducer, initialGameHistory);
+
   // get latest state from history
   const gameState = gameHistory.history[gameHistory.currentIndex];
   const { board, turn, lastMove } = gameState;
-
   const status = checkStatus(board, turn, lastMove);
+
   const path = getPath(gameHistory);
-  console.log('Path so far:', path);
   const currentNode = findNode(repertoire, path);
-  console.log('Current node:', currentNode);
+
   // saved moves at this position
   const savedMoves =
     currentNode?.children
@@ -137,6 +137,47 @@ export function App() {
       )
     : null;
 
+  function playMove(from: Position, to: Position): void {
+    dispatch({ type: 'MOVE', from, to});
+
+    // preview move to calculate correct sound
+    const moveResult = movePiece(
+      board,
+      from.row,
+      from.col,
+      to.row,
+      to.col,
+      lastMove,
+    );
+
+    const newTurn = turn === 'w' ? 'b' : 'w';
+
+    const newStatus = checkStatus(
+      moveResult.newBoard,
+      newTurn,
+      moveResult.newLastMove,
+    );
+
+    // sound effect
+    if (newStatus === 'checkmate' || newStatus === 'stalemate') {
+      gameEnd.play();
+    } else if (newStatus === 'check') {
+      moveCheck.play();
+    } else if (moveResult.isCastling) {
+      castle.play();
+    } else if (moveResult.isCapture) {
+      capture.play();
+    } else if (moveResult.isPromotion) {
+      promote.play();
+    } else {
+      if (turn === 'w') {
+        moveSelf.play();
+      } else {
+        moveOpponent.play();
+      }
+    }
+  }
+
   function handleSquareClick(row: number, col: number): void {
     // guard clause for promotion menu, checkmate, or stalemate to not allow any moves
     if (status === 'checkmate' || status === 'stalemate') return;
@@ -164,43 +205,10 @@ export function App() {
       if (
         (validMoves ?? []).some((move) => move.row === row && move.col === col)
       ) {
-        dispatch({ type: 'MOVE', from: selectedSquare, to: { row, col } });
-
-        const moveResult = movePiece(
-          board,
-          selectedSquare.row,
-          selectedSquare.col,
-          row,
-          col,
-          lastMove,
+        playMove(
+          { row: selectedSquare.row, col: selectedSquare.col },
+          { row, col },
         );
-
-        const newTurn = turn === 'w' ? 'b' : 'w';
-
-        const newStatus = checkStatus(
-          moveResult.newBoard,
-          newTurn,
-          moveResult.newLastMove,
-        );
-
-        // sound effect
-        if (newStatus === 'checkmate' || newStatus === 'stalemate') {
-          gameEnd.play();
-        } else if (newStatus === 'check') {
-          moveCheck.play();
-        } else if (moveResult.isCastling) {
-          castle.play();
-        } else if (moveResult.isCapture) {
-          capture.play();
-        } else if (moveResult.isPromotion) {
-          promote.play();
-        } else {
-          if (turn === 'w') {
-            moveSelf.play();
-          } else {
-            moveOpponent.play();
-          }
-        }
       } else {
         illegal.play();
       }
@@ -210,7 +218,7 @@ export function App() {
 
   function handleCandidateClick(uci: string) {
     const { from, to } = fromUci(uci);
-    dispatch({ type: 'MOVE', from, to });
+    playMove(from, to);
     const newRepertoire = addMove(repertoire, path, uci);
     setRepertoire(newRepertoire);
   }
