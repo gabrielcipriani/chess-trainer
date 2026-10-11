@@ -59,13 +59,47 @@ export function addMove(
   const restOfPath = path.slice(1);
 
   const newChildren = node.children.map((child) => {
-    // go down this line
     if (child.move === nextMove) {
+      // recurse down this line
       return addMove(child, restOfPath, move);
     }
     // leave other lines untouched
     return child;
   });
+
+  return { ...node, children: newChildren };
+}
+
+/**
+ * Returns a new tree with `move` and all subsequent children removed. The original tree is never modified.
+ * @param path Moves in UCI, starting from `node`.
+ * @param move Move in UCI to add.
+ */
+export function removeMove(
+  node: RepertoireNode,
+  path: string[],
+  move: string,
+): RepertoireNode {
+  // base case
+  if (path.length === 0) {
+    if (node.children.some((child) => child.move === move)) {
+      return { ...node, children: node.children.filter((child) => child.move !== move) } 
+    }
+    return node;
+  }
+
+  // move down path
+  const nextMove = path[0];
+  const restOfPath = path.slice(1);
+  
+  const newChildren = node.children.map((child) => {
+    if (child.move === nextMove) {
+      // recurse down this line
+      return removeMove(child, restOfPath, move);
+    }
+    // leave other lines untouched
+    return child;
+  })
 
   return { ...node, children: newChildren };
 }

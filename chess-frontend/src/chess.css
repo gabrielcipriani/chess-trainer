@@ -131,13 +131,15 @@ body {
 }
 
 .candidate-list li {
+  display: flex;
+  align-items: center;
   height: 40px;
   border-bottom: 1px solid #000000;
 }
 
-.candidate-list button {
+.move-row {
   height: 100%;
-  width: 100%;
+  flex: 1;
   border: none;
   font: inherit;
   color: inherit;
@@ -150,7 +152,19 @@ body {
   transition: background-color 0.15s;
 }
 
-.candidate-list button:hover {
+.move-row:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.remove-move {
+  width: 40px;
+  background: none;
+  border: none;
+  height: 100%;
+  cursor: pointer;
+}
+
+.remove-move:hover {
   background-color: rgba(0, 0, 0, 0.06);
 }
 

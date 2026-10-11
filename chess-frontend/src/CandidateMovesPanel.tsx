@@ -1,15 +1,18 @@
 import type { CandidateMove } from './types.ts';
+import { Trash2 } from 'lucide-react';
 
 interface CandidateMovesPanelProps {
   moves: CandidateMove[];
   savedMoves: string[];
   onMoveClick: (uci: string) => void;
+  onTrashClick: (uci: string) => void;
 }
 
 export function CandidateMovesPanel({
   moves,
   savedMoves,
   onMoveClick,
+  onTrashClick,
 }: CandidateMovesPanelProps) {
   return (
     <div>
@@ -22,7 +25,7 @@ export function CandidateMovesPanel({
       <ol className="candidate-list">
         {moves.map((move) => (
           <li key={move.uci}>
-            <button onClick={() => onMoveClick(move.uci)}>
+            <button className="move-row" onClick={() => onMoveClick(move.uci)}>
               <div>
                 {move.san}
                 {savedMoves.includes(move.uci) && <span>✓</span>}
@@ -46,6 +49,13 @@ export function CandidateMovesPanel({
                   {Math.round(move.blackPercent)}
                 </div>
               </div>
+            </button>
+            <button
+              className="remove-move"
+              aria-label="Remove move"
+              onClick={() => onTrashClick(move.uci)}
+            >
+              {savedMoves.includes(move.uci) && <Trash2 size={16} />}
             </button>
           </li>
         ))}

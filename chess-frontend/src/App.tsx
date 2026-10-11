@@ -10,7 +10,7 @@ import { toCandidateMoves } from './candidateMoves.ts';
 import { getFen } from './fen.ts';
 import { fetchOpeningStats } from './lichessApi.ts';
 import { MoveTimeline } from './MoveTimeline.tsx';
-import { getPath, findNode, addMove } from './repertoire.ts';
+import { getPath, findNode, addMove, removeMove } from './repertoire.ts';
 import { toUci } from './uci.ts'
 
 import type {
@@ -232,6 +232,11 @@ export function App() {
     playMove(from, to);
   }
 
+  function handleTrashClick(uci: string) {
+    const newRepertoire = removeMove(draft, path, uci);
+    setDraft(newRepertoire);
+  }
+
   return (  
     <>
       {/* <h1>Chess Trainer</h1> */}
@@ -257,6 +262,7 @@ export function App() {
             moves={visibleMoves}
             savedMoves={savedMoves}
             onMoveClick={handleCandidateClick}
+            onTrashClick={handleTrashClick}
           />
         </div>
       </div>
