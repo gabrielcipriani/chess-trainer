@@ -53,7 +53,11 @@ const initialRepertoire: RepertoireNode = {
 
 export function App() {
   const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
-  const [candidateMoves, setCandidateMoves] = useState<CandidateMove[]>([]);
+  const [stats, setStats] = useState<{
+    fen: string;
+    moves: CandidateMove[];
+  } | null>(null);
+  // const [candidateMoves, setCandidateMoves] = useState<CandidateMove[]>([]);
   const [repertoire, setRepertoire] =
     useState<RepertoireNode>(initialRepertoire);
   const [gameHistory, dispatch] = useReducer(gameReducer, initialGameHistory);
@@ -98,7 +102,7 @@ export function App() {
       const response = await fetchOpeningStats(fen);
       const candidateMoves = toCandidateMoves(response);
       if (!ignore) {
-        setCandidateMoves(candidateMoves);
+        setStats({ fen, moves: candidateMoves });
       }
     }
 
@@ -109,6 +113,9 @@ export function App() {
       ignore = true;
     };
   }, [fen]);
+
+  // hide candidate moves while fetching next move
+  const visibleMoves = stats?.fen === fen ? stats.moves : [];
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -138,7 +145,7 @@ export function App() {
     : null;
 
   function playMove(from: Position, to: Position): void {
-    dispatch({ type: 'MOVE', from, to});
+    dispatch({ type: 'MOVE', from, to });
 
     // preview move to calculate correct sound
     const moveResult = movePiece(
@@ -244,7 +251,7 @@ export function App() {
         </div>
         <div className="side-panel">
           <CandidateMovesPanel
-            moves={candidateMoves}
+            moves={visibleMoves}
             savedMoves={savedMoves}
             onMoveClick={handleCandidateClick}
           />
