@@ -1,4 +1,4 @@
-import type { Board, Position } from "./types.ts";
+import type { Board, Position } from './types.ts';
 
 export const DIRECTIONS = {
   ROOK: [
@@ -53,7 +53,11 @@ const PIECE_NAMES = {
   k: 'KING',
 } as const;
 
-export function getPseudoLegalMoves(board: Board, fromRow: number, fromCol: number): Position[] {
+export function getPseudoLegalMoves(
+  board: Board,
+  fromRow: number,
+  fromCol: number,
+): Position[] {
   const movingPiece = board[fromRow][fromCol];
   if (!movingPiece) {
     return [];
@@ -61,7 +65,11 @@ export function getPseudoLegalMoves(board: Board, fromRow: number, fromCol: numb
   const validMoves: Position[] = [];
 
   // Sliding pieces (rook, bishop, queen)
-  if (movingPiece.type === 'r' || movingPiece.type === 'q' || movingPiece.type === 'b') {
+  if (
+    movingPiece.type === 'r' ||
+    movingPiece.type === 'q' ||
+    movingPiece.type === 'b'
+  ) {
     const directions = DIRECTIONS[PIECE_NAMES[movingPiece.type]];
     for (const dir of directions) {
       // Start from selected piece

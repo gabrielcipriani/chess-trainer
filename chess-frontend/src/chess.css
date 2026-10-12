@@ -12,7 +12,9 @@
   }
 }
 
-.moving { animation: slide-in 300ms }
+.moving {
+  animation: slide-in 300ms;
+}
 
 body {
   font-family: 'Inter', sans-serif;
@@ -40,6 +42,7 @@ body {
 }
 
 .side-panel {
+  --candidate-columns: 50px 1fr 1fr;
   height: 800px;
   width: 400px;
 }
@@ -49,7 +52,7 @@ body {
   overflow-x: auto;
   padding: 5px;
   gap: 10px;
-  height: 80px;
+  height: 30px;
   width: 400px;
   scrollbar-width: none;
 }
@@ -117,9 +120,10 @@ body {
 
 .candidate-header {
   display: grid;
-  grid-template-columns: 50px 1fr 1fr;
+  grid-template-columns: var(--candidate-columns);
   justify-items: center;
   align-items: center;
+  padding-right: 40px;
 }
 
 .candidate-list {
@@ -129,12 +133,45 @@ body {
 }
 
 .candidate-list li {
+  display: flex;
+  align-items: center;
   height: 40px;
   border-bottom: 1px solid #000000;
+}
+
+.move-row {
+  height: 100%;
+  flex: 1;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: none;
   display: grid;
-  grid-template-columns: 50px 1fr 1fr;
+  grid-template-columns: var(--candidate-columns);
   justify-items: center;
   align-items: center;
+  transition: background-color 0.15s;
+}
+
+.move-row:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.remove-move {
+  width: 40px;
+  background: none;
+  border: none;
+  height: 100%;
+  cursor: pointer;
+}
+
+.remove-move:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.remove-placeholder {
+  width: 40px;
 }
 
 .result-bar {
@@ -144,7 +181,6 @@ body {
   flex-direction: row;
   overflow: hidden;
   border-radius: 3px;
-  overflow: hidden;
 }
 
 .result-white {
@@ -169,41 +205,7 @@ h1 {
   user-select: none;
 }
 
-.promotion-menu {
-  grid-area: overlay;
-  display: flex;
-  flex-direction: row;
-  background-color: white;
-  border: 2px solid black;
-  width: 400px;
-  height: 100px;
-  justify-content: center;
-  align-items: center;
-  justify-self: center;
-  align-self: center;
-  z-index: 10;
-}
-
-.promotion-menu img {
-  width: 90px;
-  height: 90px;
-}
-
-.checkmate-menu {
-  grid-area: overlay;
-  display: flex;
-  background-color: white;
-  border: 2px solid black;
-  width: 400px;
-  height: 100px;
-  justify-content: center;
-  align-items: center;
-  justify-self: center;
-  align-self: center;
-  z-index: 10;
-}
-
-.stalemate-menu {
+.game-over-menu {
   grid-area: overlay;
   display: flex;
   background-color: white;

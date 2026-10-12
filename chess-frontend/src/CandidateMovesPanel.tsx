@@ -1,6 +1,19 @@
 import type { CandidateMove } from './types.ts';
+import { Trash2 } from 'lucide-react';
 
-export function CandidateMovesPanel({ moves }: { moves: CandidateMove[] }) {
+interface CandidateMovesPanelProps {
+  moves: CandidateMove[];
+  savedMoves: string[];
+  onMoveClick: (uci: string) => void;
+  onTrashClick: (uci: string) => void;
+}
+
+export function CandidateMovesPanel({
+  moves,
+  savedMoves,
+  onMoveClick,
+  onTrashClick,
+}: CandidateMovesPanelProps) {
   return (
     <div>
       <h2>Candidate Moves</h2>
@@ -12,13 +25,42 @@ export function CandidateMovesPanel({ moves }: { moves: CandidateMove[] }) {
       <ol className="candidate-list">
         {moves.map((move) => (
           <li key={move.uci}>
-            <div>{move.san}</div>
-            <div>{Math.round(move.playedPercent)}%</div>
-            <div className="result-bar">
-              <div className="result-white" style={{ width: `${move.whitePercent}%`}}>{Math.round(move.whitePercent)}</div>
-              <div className="result-draw" style={{ width: `${move.drawPercent}%`}}></div>
-              <div className="result-black" style={{ width: `${move.blackPercent}%`}}>{Math.round(move.blackPercent)}</div>
-            </div>
+            <button className="move-row" onClick={() => onMoveClick(move.uci)}>
+              <div>
+                {move.san}
+                {savedMoves.includes(move.uci) && <span>✓</span>}
+              </div>
+              <div>{Math.round(move.playedPercent)}%</div>
+              <div className="result-bar">
+                <div
+                  className="result-white"
+                  style={{ width: `${move.whitePercent}%` }}
+                >
+                  {Math.round(move.whitePercent)}
+                </div>
+                <div
+                  className="result-draw"
+                  style={{ width: `${move.drawPercent}%` }}
+                ></div>
+                <div
+                  className="result-black"
+                  style={{ width: `${move.blackPercent}%` }}
+                >
+                  {Math.round(move.blackPercent)}
+                </div>
+              </div>
+            </button>
+            {savedMoves.includes(move.uci) ? (
+              <button
+                className="remove-move"
+                aria-label="Remove move"
+                onClick={() => onTrashClick(move.uci)}
+              >
+                <Trash2 size={16} />
+              </button>
+            ) : (
+              <div className="remove-placeholder" />
+            )}
           </li>
         ))}
       </ol>

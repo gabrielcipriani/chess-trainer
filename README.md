@@ -46,11 +46,13 @@ Tests cover FEN generation, board updates and check detection. CI runs the tests
 
 ## Roadmap
 
-- [ ] Play a move by clicking it in the candidate moves panel
+- [x] Play a move by clicking it in the candidate moves panel
 - [x] Piece movement animation
 - [x] Move history in standard notation
+- [ ] Name of line in move history
 - [x] Undo/Redo functionality
-- [ ] Repertoire building: save lines and track coverage
+- [x] Repertoire building: save lines
+- [ ] Track repertoir coverage
 - [ ] Engine evaluations
 - [ ] Backend and database for saved repertoires
 - [ ] Spaced-repetition training

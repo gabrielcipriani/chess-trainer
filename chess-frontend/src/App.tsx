@@ -9,13 +9,16 @@ import { CandidateMovesPanel } from './CandidateMovesPanel.tsx';
 import { toCandidateMoves } from './candidateMoves.ts';
 import { getFen } from './fen.ts';
 import { fetchOpeningStats } from './lichessApi.ts';
-import { MoveTimeline } from './MoveTimeline.tsx'
+import { MoveTimeline } from './MoveTimeline.tsx';
+import { getPath, findNode, addMove, removeMove } from './repertoire.ts';
+import { toUci } from './uci.ts'
 
 import type {
-  Position, 
+  Position,
   GameState,
   CandidateMove,
   GameHistory,
+  RepertoireNode,
 } from './types.ts';
 import {
   moveSelf,
@@ -27,31 +30,53 @@ import {
   moveCheck,
   promote,
 } from './sounds.ts';
+import { fromUci } from './uci.ts';
+
+const initialGameState: GameState = {
+  board: boardState,
+  turn: 'w',
+  lastMove: null,
+  san: null,
+  halfmoveClock: 0,
+  fullmoveNumber: 1,
+};
+
+const initialGameHistory: GameHistory = {
+  history: [initialGameState],
+  currentIndex: 0,
+  direction: 'fwd',
+};
+
+const initialRepertoire: RepertoireNode = {
+  move: null,
+  children: [],
+};
 
 export function App() {
   const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
-  const [candidateMoves, setCandidateMoves] = useState<CandidateMove[]>([]);
-
-  const initialGameState: GameState = {
-    board: boardState,
-    turn: 'w',
-    lastMove: null,
-    san: null,
-    halfmoveClock: 0,
-    fullmoveNumber: 1,
-  };
-
-  const initialGameHistory: GameHistory = {
-    history: [initialGameState],
-    currentIndex: 0,
-    direction: 'fwd',
-  };
-
+  const [stats, setStats] = useState<{
+    fen: string;
+    moves: CandidateMove[];
+  } | null>(null);
+  // const [candidateMoves, setCandidateMoves] = useState<CandidateMove[]>([]);
+  const [draft, setDraft] =
+    useState<RepertoireNode>(initialRepertoire);
   const [gameHistory, dispatch] = useReducer(gameReducer, initialGameHistory);
+
   // get latest state from history
   const gameState = gameHistory.history[gameHistory.currentIndex];
   const { board, turn, lastMove } = gameState;
   const status = checkStatus(board, turn, lastMove);
+
+  const path = getPath(gameHistory);
+  const currentNode = findNode(draft, path);
+
+  // saved moves at this position
+  const savedMoves =
+    currentNode?.children
+      .map((child) => child.move)
+      .filter((move) => move !== null) ?? [];
+
   const animatedMove =
     gameHistory.direction === 'fwd'
       ? lastMove
@@ -77,7 +102,7 @@ export function App() {
       const response = await fetchOpeningStats(fen);
       const candidateMoves = toCandidateMoves(response);
       if (!ignore) {
-        setCandidateMoves(candidateMoves);
+        setStats({ fen, moves: candidateMoves });
       }
     }
 
@@ -88,6 +113,9 @@ export function App() {
       ignore = true;
     };
   }, [fen]);
+
+  // hide candidate moves while fetching next move
+  const visibleMoves = stats?.fen === fen ? stats.moves : [];
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -116,6 +144,51 @@ export function App() {
       )
     : null;
 
+  function playMove(from: Position, to: Position): void {
+    dispatch({ type: 'MOVE', from, to });
+
+    // preview move to calculate correct sound
+    const moveResult = movePiece(
+      board,
+      from.row,
+      from.col,
+      to.row,
+      to.col,
+      lastMove,
+    );
+
+    const newTurn = turn === 'w' ? 'b' : 'w';
+
+    const newStatus = checkStatus(
+      moveResult.newBoard,
+      newTurn,
+      moveResult.newLastMove,
+    );
+
+    // sound effect
+    if (newStatus === 'checkmate' || newStatus === 'stalemate') {
+      gameEnd.play();
+    } else if (newStatus === 'check') {
+      moveCheck.play();
+    } else if (moveResult.isCastling) {
+      castle.play();
+    } else if (moveResult.isCapture) {
+      capture.play();
+    } else if (moveResult.isPromotion) {
+      promote.play();
+    } else {
+      if (turn === 'w') {
+        moveSelf.play();
+      } else {
+        moveOpponent.play();
+      }
+    }
+
+    const uci = toUci(moveResult.newLastMove);
+    const newRepertoire = addMove(draft, path, uci);
+    setDraft(newRepertoire);
+  }
+
   function handleSquareClick(row: number, col: number): void {
     // guard clause for promotion menu, checkmate, or stalemate to not allow any moves
     if (status === 'checkmate' || status === 'stalemate') return;
@@ -143,43 +216,10 @@ export function App() {
       if (
         (validMoves ?? []).some((move) => move.row === row && move.col === col)
       ) {
-        dispatch({ type: 'MOVE', from: selectedSquare, to: { row, col } });
-
-        const moveResult = movePiece(
-          board,
-          selectedSquare.row,
-          selectedSquare.col,
-          row,
-          col,
-          lastMove,
+        playMove(
+          { row: selectedSquare.row, col: selectedSquare.col },
+          { row, col },
         );
-
-        const newTurn = turn === 'w' ? 'b' : 'w';
-
-        const newStatus = checkStatus(
-          moveResult.newBoard,
-          newTurn,
-          moveResult.newLastMove,
-        );
-
-        // sound effect
-        if (newStatus === 'checkmate' || newStatus === 'stalemate') {
-          gameEnd.play();
-        } else if (newStatus === 'check') {
-          moveCheck.play();
-        } else if (moveResult.isCastling) {
-          castle.play();
-        } else if (moveResult.isCapture) {
-          capture.play();
-        } else if (moveResult.isPromotion) {
-          promote.play();
-        } else {
-          if (turn === 'w') {
-            moveSelf.play();
-          } else {
-            moveOpponent.play();
-          }
-        }
       } else {
         illegal.play();
       }
@@ -187,7 +227,17 @@ export function App() {
     }
   }
 
-  return (
+  function handleCandidateClick(uci: string) {
+    const { from, to } = fromUci(uci);
+    playMove(from, to);
+  }
+
+  function handleTrashClick(uci: string) {
+    const newRepertoire = removeMove(draft, path, uci);
+    setDraft(newRepertoire);
+  }
+
+  return (  
     <>
       {/* <h1>Chess Trainer</h1> */}
       <div className="main">
@@ -200,15 +250,20 @@ export function App() {
             onSquareClick={handleSquareClick}
           />
           {status === 'checkmate' && (
-            <div className="checkmate-menu">Checkmate!</div>
+            <div className="game-over-menu">Checkmate!</div>
           )}
           {status === 'stalemate' && (
-            <div className="stalemate-menu">Stalemate!</div>
+            <div className="game-over-menu">Stalemate!</div>
           )}
         </div>
         <div className="side-panel">
-          <CandidateMovesPanel moves={candidateMoves} />
-          <MoveTimeline positions={gameHistory.history}/>
+          <MoveTimeline positions={gameHistory.history} />
+          <CandidateMovesPanel
+            moves={visibleMoves}
+            savedMoves={savedMoves}
+            onMoveClick={handleCandidateClick}
+            onTrashClick={handleTrashClick}
+          />
         </div>
       </div>
     </>

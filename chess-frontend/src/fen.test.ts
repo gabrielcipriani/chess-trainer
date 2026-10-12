@@ -1,6 +1,6 @@
 import { it, expect } from 'vitest';
 import { getFen } from './fen.ts';
-import type { GameState } from './types.ts'
+import type { GameState } from './types.ts';
 import { boardState } from './boardState.ts';
 
 const initialGameState: GameState = {

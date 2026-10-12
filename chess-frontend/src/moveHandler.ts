@@ -10,12 +10,11 @@ export function movePiece(
   toCol: number,
   lastMove: LastMove | null,
 ) {
-
   const originSquare = board[fromRow][fromCol];
   if (!originSquare) {
     throw new Error(`Piece to move not found at (${fromRow}, ${fromCol})`);
   }
-    
+
   const turn = originSquare.color;
 
   let newBoard = updateBoard(board, fromRow, fromCol, {
@@ -69,14 +68,21 @@ export function movePiece(
     }
   }
 
-  if(isEnPassant) {
+  if (isEnPassant) {
     // remove passed pawm
     newBoard[fromRow][toCol] = null;
   }
-  
+
   if (isPromotion) {
     newBoard[toRow][toCol]!.type = 'q';
   }
 
-  return { newBoard, newLastMove, isCastling, isEnPassant, isPromotion, isCapture };
+  return {
+    newBoard,
+    newLastMove,
+    isCastling,
+    isEnPassant,
+    isPromotion,
+    isCapture,
+  };
 }

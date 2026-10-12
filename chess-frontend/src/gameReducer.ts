@@ -43,7 +43,9 @@ export function gameReducer(
       const files = 'abcdefgh';
       const type =
         moveResult.newLastMove.type === 'p'
-          ? (moveResult.isCapture ? files[moveResult.newLastMove.from.col] : '')
+          ? moveResult.isCapture
+            ? files[moveResult.newLastMove.from.col]
+            : ''
           : moveResult.newLastMove.type.toUpperCase();
       const destinationSquare = `${files[moveResult.newLastMove.to.col]}${8 - moveResult.newLastMove.to.row}`;
 

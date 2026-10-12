@@ -8,7 +8,13 @@ import type { Board, Color, Position, LastMove } from './types.ts';
  * Returns an array of valid moves for a piece at (fromRow, fromCol).
  * A valid move is one that does not leave the player's king in check.
  */
-export function getValidMoves(board: Board, fromRow: number, fromCol: number, turn: Color, lastMove: LastMove | null) {
+export function getValidMoves(
+  board: Board,
+  fromRow: number,
+  fromCol: number,
+  turn: Color,
+  lastMove: LastMove | null,
+) {
   const currentPiece = board[fromRow][fromCol];
   if (!currentPiece) {
     return [];
@@ -29,7 +35,7 @@ export function getValidMoves(board: Board, fromRow: number, fromCol: number, tu
       validMoves.push(...castlingMoves);
     }
   }
-  
+
   // En passant check
   if (
     currentPiece.type === 'p' &&

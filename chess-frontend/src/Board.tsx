@@ -53,13 +53,9 @@ function SquareCell({
 
       {isValidDestination && <div className="valid-move-marker"></div>}
 
-      {row === 7 &&
-        <div className='coordinate-files'>{'abcdefgh'[col]}</div>
-      }
+      {row === 7 && <div className="coordinate-files">{'abcdefgh'[col]}</div>}
 
-      {col === 0 &&
-        <div className='coordinate-ranks'>{8-row}</div>
-      }
+      {col === 0 && <div className="coordinate-ranks">{8 - row}</div>}
     </div>
   );
 }
