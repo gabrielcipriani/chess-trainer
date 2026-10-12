@@ -50,13 +50,17 @@ export function CandidateMovesPanel({
                 </div>
               </div>
             </button>
-            <button
-              className="remove-move"
-              aria-label="Remove move"
-              onClick={() => onTrashClick(move.uci)}
-            >
-              {savedMoves.includes(move.uci) && <Trash2 size={16} />}
-            </button>
+            {savedMoves.includes(move.uci) ? (
+              <button
+                className="remove-move"
+                aria-label="Remove move"
+                onClick={() => onTrashClick(move.uci)}
+              >
+                <Trash2 size={16} />
+              </button>
+            ) : (
+              <div className="remove-placeholder" />
+            )}
           </li>
         ))}
       </ol>

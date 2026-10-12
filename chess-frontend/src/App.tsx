@@ -250,10 +250,10 @@ export function App() {
             onSquareClick={handleSquareClick}
           />
           {status === 'checkmate' && (
-            <div className="checkmate-menu">Checkmate!</div>
+            <div className="game-over-menu">Checkmate!</div>
           )}
           {status === 'stalemate' && (
-            <div className="stalemate-menu">Stalemate!</div>
+            <div className="game-over-menu">Stalemate!</div>
           )}
         </div>
         <div className="side-panel">
