@@ -3,7 +3,7 @@ from typing import Literal
 
 import psycopg
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 load_dotenv()
@@ -45,6 +45,8 @@ def get_tree(repertoire_id: int):
             "SELECT id, parent_id, move FROM nodes WHERE repertoire_id = %s",
             (repertoire_id,),
         ).fetchall()
+    if not rows:
+        raise HTTPException(status_code=404, detail="Repertoire not found")
     nodes = []
     for node_id, parent_id, move in rows:
         nodes.append({"id": node_id, "parent_id": parent_id, "move": move})
