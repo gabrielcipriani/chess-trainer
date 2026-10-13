@@ -19,11 +19,12 @@ class NewRepertoire(BaseModel):
 @app.post("/repertoires")
 def create_repertoire(repertoire: NewRepertoire):
     with psycopg.connect(DATABASE_URL) as conn:
-        conn.execute(
-            "INSERT INTO repertoires (name, color) VALUES (%s, %s)",
+        row = conn.execute(
+            "INSERT INTO repertoires (name, color) VALUES (%s, %s) RETURNING id",
             (repertoire.name, repertoire.color),
-        )
-    return repertoire
+        ).fetchone()
+    assert row is not None
+    return {"id": row[0], "name": repertoire.name, "color": repertoire.color}
 
 
 @app.get("/repertoires")
