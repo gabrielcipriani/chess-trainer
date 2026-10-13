@@ -23,7 +23,8 @@ def create_repertoire(repertoire: NewRepertoire):
             "INSERT INTO repertoires (name, color) VALUES (%s, %s) RETURNING id",
             (repertoire.name, repertoire.color),
         ).fetchone()
-    assert row is not None
+        assert row is not None
+        conn.execute("INSERT INTO nodes (repertoire_id) VALUES (%s)", (row[0],))
     return {"id": row[0], "name": repertoire.name, "color": repertoire.color}
 
 
