@@ -1,7 +1,10 @@
 import os
+
 import psycopg
+from dotenv import load_dotenv
 from fastapi import FastAPI
 
+load_dotenv()
 app = FastAPI()
 DATABASE_URL = os.environ["DATABASE_URL"]
 

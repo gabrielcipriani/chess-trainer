@@ -32,3 +32,4 @@ __pycache__/
 chess-frontend/scratch.ts
 .vercel
 .env*
+!.env.example
