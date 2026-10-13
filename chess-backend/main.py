@@ -36,3 +36,16 @@ def list_repertoires():
     for repertoire_id, name, color in rows:
         repertoires.append({"id": repertoire_id, "name": name, "color": color})
     return repertoires
+
+
+@app.get("/repertoires/{repertoire_id}/tree")
+def get_tree(repertoire_id: int):
+    with psycopg.connect(DATABASE_URL) as conn:
+        rows = conn.execute(
+            "SELECT id, parent_id, move FROM nodes WHERE repertoire_id = %s",
+            (repertoire_id,),
+        ).fetchall()
+    nodes = []
+    for node_id, parent_id, move in rows:
+        nodes.append({"id": node_id, "parent_id": parent_id, "move": move})
+    return nodes
