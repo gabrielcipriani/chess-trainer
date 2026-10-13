@@ -1,22 +1,29 @@
 import os
+from typing import Literal
 
 import psycopg
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 load_dotenv()
 app = FastAPI()
 DATABASE_URL = os.environ["DATABASE_URL"]
 
 
-@app.get("/")
-def root():
-    return {"message": "hello world"}
+class NewRepertoire(BaseModel):
+    name: str
+    color: Literal["white", "black"]
 
 
-@app.get("/health")
-def health():
-    return {"status": "ok"}
+@app.post("/repertoires")
+def create_repertoire(repertoire: NewRepertoire):
+    with psycopg.connect(DATABASE_URL) as conn:
+        conn.execute(
+            "INSERT INTO repertoires (name, color) VALUES (%s, %s)",
+            (repertoire.name, repertoire.color),
+        )
+    return repertoire
 
 
 @app.get("/repertoires")
