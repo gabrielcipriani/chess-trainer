@@ -42,12 +42,17 @@ def list_repertoires():
 def get_tree(repertoire_id: int):
     with psycopg.connect(DATABASE_URL) as conn:
         rows = conn.execute(
-            "SELECT id, parent_id, move FROM nodes WHERE repertoire_id = %s",
+            "SELECT id, parent_id, move FROM nodes WHERE repertoire_id = %s ORDER BY id",
             (repertoire_id,),
         ).fetchall()
     if not rows:
         raise HTTPException(status_code=404, detail="Repertoire not found")
-    nodes = []
+    nodes_by_id = {}
     for node_id, parent_id, move in rows:
-        nodes.append({"id": node_id, "parent_id": parent_id, "move": move})
-    return nodes
+        nodes_by_id[node_id] = {"move": move, "children": []}
+    for node_id, parent_id, move in rows:
+        if parent_id is None:
+            root = nodes_by_id[node_id]
+        else:
+            nodes_by_id[parent_id]["children"].append(nodes_by_id[node_id])
+    return root
