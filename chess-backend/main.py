@@ -4,10 +4,17 @@ from typing import Literal
 import psycopg
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 load_dotenv()
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 DATABASE_URL = os.environ["DATABASE_URL"]
 
 
@@ -76,6 +83,12 @@ def insert_node(conn, repertoire_id: int, node: TreeNode, parent_id: int | None)
 @app.put("/repertoires/{repertoire_id}/tree")
 def save_tree(repertoire_id: int, tree: TreeNode):
     with psycopg.connect(DATABASE_URL) as conn:
+        # check if repertoire exists
+        existing_repertoire = conn.execute(
+            "SELECT id FROM repertoires WHERE id = %s", (repertoire_id,)
+        ).fetchone()
+        if not existing_repertoire:
+            raise HTTPException(status_code=404, detail="Repertoire not found")
         conn.execute("DELETE FROM nodes WHERE repertoire_id = %s", (repertoire_id,))
         insert_node(conn, repertoire_id, tree, None)
     return tree
