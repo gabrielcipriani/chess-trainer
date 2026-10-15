@@ -49,7 +49,7 @@ const initialGameHistory: GameHistory = {
 };
 
 // fixed repertoire id for now
-const REPERTOIRE_ID = 6;
+const REPERTOIRE_ID = 1;
 
 const saveStatusMessages: Record<SaveStatus, string> = {
   idle: 'Save your changes',
