@@ -12,14 +12,15 @@ import { fetchOpeningStats } from './lichessApi.ts';
 import { MoveTimeline } from './MoveTimeline.tsx';
 import { getPath, findNode, addMove, removeMove } from './repertoire.ts';
 import { toUci, fromUci } from './uci.ts';
-import { fetchRepertoireTree } from './repertoireApi.ts';
+import { fetchRepertoireTree, saveRepertoireTree } from './repertoireApi.ts';
 
-import type {
-  Position,
-  GameState,
-  CandidateMove,
-  GameHistory,
-  RepertoireNode,
+import {
+  type Position,
+  type GameState,
+  type CandidateMove,
+  type GameHistory,
+  type RepertoireNode,
+  type SaveStatus,
 } from './types.ts';
 import {
   moveSelf,
@@ -50,7 +51,15 @@ const initialGameHistory: GameHistory = {
 // fixed repertoire id for now
 const REPERTOIRE_ID = 6;
 
+const saveStatusMessages: Record<SaveStatus, string> = {
+  idle: 'Save your changes',
+  saving: 'Saving repertoire...',
+  saved: 'Repertoire saved',
+  failed: 'Failed to save. Try again',
+};
+
 export function App() {
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
   const [stats, setStats] = useState<{
     fen: string;
@@ -67,8 +76,8 @@ export function App() {
   const path = getPath(gameHistory);
   const currentNode = draft ? findNode(draft, path) : null;
 
-  // saved moves at this position
-  const savedMoves =
+  // draft moves at this position
+  const draftMoves =
     currentNode?.children
       .map((child) => child.move)
       .filter((move) => move !== null) ?? [];
@@ -190,6 +199,7 @@ export function App() {
     const uci = toUci(moveResult.newLastMove);
     const newDraft = addMove(draft, path, uci);
     setDraft(newDraft);
+    setSaveStatus('idle');
   }
 
   function handleSquareClick(row: number, col: number): void {
@@ -240,11 +250,23 @@ export function App() {
 
     const newDraft = removeMove(draft, path, uci);
     setDraft(newDraft);
+    setSaveStatus('idle');
+  }
+
+  async function handleSave() {
+    if (!draft) return;
+
+    setSaveStatus('saving');
+    try {
+      await saveRepertoireTree(REPERTOIRE_ID, draft);
+      setSaveStatus('saved');
+    } catch {
+      setSaveStatus('failed');
+    }
   }
 
   return (
     <>
-      {/* <h1>Chess Trainer</h1> */}
       <div className="main">
         <div className="game-container">
           <Board
@@ -262,10 +284,17 @@ export function App() {
           )}
         </div>
         <div className="side-panel">
+          <button
+            onClick={handleSave}
+            disabled={!draft || saveStatus === 'saving'}
+          >
+            SAVE
+          </button>
+          <p role="status">{saveStatusMessages[saveStatus]}</p>
           <MoveTimeline positions={gameHistory.history} />
           <CandidateMovesPanel
             moves={visibleMoves}
-            savedMoves={savedMoves}
+            draftMoves={draftMoves}
             onMoveClick={handleCandidateClick}
             onTrashClick={handleTrashClick}
           />
