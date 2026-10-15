@@ -11,7 +11,8 @@ import { getFen } from './fen.ts';
 import { fetchOpeningStats } from './lichessApi.ts';
 import { MoveTimeline } from './MoveTimeline.tsx';
 import { getPath, findNode, addMove, removeMove } from './repertoire.ts';
-import { toUci } from './uci.ts'
+import { toUci, fromUci } from './uci.ts';
+import { fetchRepertoireTree } from './repertoireApi.ts';
 
 import type {
   Position,
@@ -30,7 +31,6 @@ import {
   moveCheck,
   promote,
 } from './sounds.ts';
-import { fromUci } from './uci.ts';
 
 const initialGameState: GameState = {
   board: boardState,
@@ -47,10 +47,8 @@ const initialGameHistory: GameHistory = {
   direction: 'fwd',
 };
 
-const initialRepertoire: RepertoireNode = {
-  move: null,
-  children: [],
-};
+// fixed repertoire id for now
+const REPERTOIRE_ID = 6;
 
 export function App() {
   const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
@@ -58,9 +56,7 @@ export function App() {
     fen: string;
     moves: CandidateMove[];
   } | null>(null);
-  // const [candidateMoves, setCandidateMoves] = useState<CandidateMove[]>([]);
-  const [draft, setDraft] =
-    useState<RepertoireNode>(initialRepertoire);
+  const [draft, setDraft] = useState<RepertoireNode | null>(null);
   const [gameHistory, dispatch] = useReducer(gameReducer, initialGameHistory);
 
   // get latest state from history
@@ -69,7 +65,7 @@ export function App() {
   const status = checkStatus(board, turn, lastMove);
 
   const path = getPath(gameHistory);
-  const currentNode = findNode(draft, path);
+  const currentNode = draft ? findNode(draft, path) : null;
 
   // saved moves at this position
   const savedMoves =
@@ -134,6 +130,11 @@ export function App() {
     };
   }, []);
 
+  // fetch saved repertoire on start and put in draft
+  useEffect(() => {
+    fetchRepertoireTree(REPERTOIRE_ID).then(setDraft);
+  }, []);
+
   const validMoves = selectedSquare
     ? getValidMoves(
         board,
@@ -145,6 +146,8 @@ export function App() {
     : null;
 
   function playMove(from: Position, to: Position): void {
+    if (!draft) return;
+
     dispatch({ type: 'MOVE', from, to });
 
     // preview move to calculate correct sound
@@ -185,8 +188,8 @@ export function App() {
     }
 
     const uci = toUci(moveResult.newLastMove);
-    const newRepertoire = addMove(draft, path, uci);
-    setDraft(newRepertoire);
+    const newDraft = addMove(draft, path, uci);
+    setDraft(newDraft);
   }
 
   function handleSquareClick(row: number, col: number): void {
@@ -233,11 +236,13 @@ export function App() {
   }
 
   function handleTrashClick(uci: string) {
-    const newRepertoire = removeMove(draft, path, uci);
-    setDraft(newRepertoire);
+    if (!draft) return;
+
+    const newDraft = removeMove(draft, path, uci);
+    setDraft(newDraft);
   }
 
-  return (  
+  return (
     <>
       {/* <h1>Chess Trainer</h1> */}
       <div className="main">
