@@ -4,7 +4,7 @@ A chess opening trainer inspired by [Chessbook](https://www.chessbook.com). Buil
 
 ![CI](https://github.com/gabrielcipriani/chess-trainer/actions/workflows/ci.yml/badge.svg)
 
-**Live demo:** https://chess-trainer-gcipriani.vercel.app (saving repertoires isn't available in the live demo yet)
+**Live demo:** https://chess-trainer-seven-rouge.vercel.app (saving repertoires isn't available in the live demo yet)
 
 ![Screenshot](docs/screenshot.png)
 
