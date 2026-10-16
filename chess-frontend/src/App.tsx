@@ -11,14 +11,16 @@ import { getFen } from './fen.ts';
 import { fetchOpeningStats } from './lichessApi.ts';
 import { MoveTimeline } from './MoveTimeline.tsx';
 import { getPath, findNode, addMove, removeMove } from './repertoire.ts';
-import { toUci } from './uci.ts'
+import { toUci, fromUci } from './uci.ts';
+import { fetchRepertoireTree, saveRepertoireTree } from './repertoireApi.ts';
 
-import type {
-  Position,
-  GameState,
-  CandidateMove,
-  GameHistory,
-  RepertoireNode,
+import {
+  type Position,
+  type GameState,
+  type CandidateMove,
+  type GameHistory,
+  type RepertoireNode,
+  type SaveStatus,
 } from './types.ts';
 import {
   moveSelf,
@@ -30,7 +32,6 @@ import {
   moveCheck,
   promote,
 } from './sounds.ts';
-import { fromUci } from './uci.ts';
 
 const initialGameState: GameState = {
   board: boardState,
@@ -47,20 +48,25 @@ const initialGameHistory: GameHistory = {
   direction: 'fwd',
 };
 
-const initialRepertoire: RepertoireNode = {
-  move: null,
-  children: [],
+// fixed repertoire id for now
+const REPERTOIRE_ID = 1;
+
+const saveStatusMessages: Record<SaveStatus, string> = {
+  idle: 'Save your changes',
+  saving: 'Saving repertoire...',
+  saved: 'Repertoire saved',
+  failed: 'Failed to save. Try again',
 };
 
 export function App() {
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
   const [stats, setStats] = useState<{
     fen: string;
     moves: CandidateMove[];
   } | null>(null);
-  // const [candidateMoves, setCandidateMoves] = useState<CandidateMove[]>([]);
-  const [draft, setDraft] =
-    useState<RepertoireNode>(initialRepertoire);
+  const [draft, setDraft] = useState<RepertoireNode | null>(null);
   const [gameHistory, dispatch] = useReducer(gameReducer, initialGameHistory);
 
   // get latest state from history
@@ -69,10 +75,10 @@ export function App() {
   const status = checkStatus(board, turn, lastMove);
 
   const path = getPath(gameHistory);
-  const currentNode = findNode(draft, path);
+  const currentNode = draft ? findNode(draft, path) : null;
 
-  // saved moves at this position
-  const savedMoves =
+  // draft moves at this position
+  const draftMoves =
     currentNode?.children
       .map((child) => child.move)
       .filter((move) => move !== null) ?? [];
@@ -134,6 +140,16 @@ export function App() {
     };
   }, []);
 
+  // fetch saved repertoire on start and put in draft
+  useEffect(() => {
+    fetchRepertoireTree(REPERTOIRE_ID)
+      .then(setDraft)
+      .catch(() => {
+        setLoadFailed(true);
+        setDraft({ move: null, children: [] });
+      });
+  }, []);
+
   const validMoves = selectedSquare
     ? getValidMoves(
         board,
@@ -145,6 +161,8 @@ export function App() {
     : null;
 
   function playMove(from: Position, to: Position): void {
+    if (!draft) return;
+
     dispatch({ type: 'MOVE', from, to });
 
     // preview move to calculate correct sound
@@ -185,8 +203,9 @@ export function App() {
     }
 
     const uci = toUci(moveResult.newLastMove);
-    const newRepertoire = addMove(draft, path, uci);
-    setDraft(newRepertoire);
+    const newDraft = addMove(draft, path, uci);
+    setDraft(newDraft);
+    setSaveStatus('idle');
   }
 
   function handleSquareClick(row: number, col: number): void {
@@ -233,13 +252,27 @@ export function App() {
   }
 
   function handleTrashClick(uci: string) {
-    const newRepertoire = removeMove(draft, path, uci);
-    setDraft(newRepertoire);
+    if (!draft) return;
+
+    const newDraft = removeMove(draft, path, uci);
+    setDraft(newDraft);
+    setSaveStatus('idle');
   }
 
-  return (  
+  async function handleSave() {
+    if (!draft) return;
+
+    setSaveStatus('saving');
+    try {
+      await saveRepertoireTree(REPERTOIRE_ID, draft);
+      setSaveStatus('saved');
+    } catch {
+      setSaveStatus('failed');
+    }
+  }
+
+  return (
     <>
-      {/* <h1>Chess Trainer</h1> */}
       <div className="main">
         <div className="game-container">
           <Board
@@ -257,10 +290,21 @@ export function App() {
           )}
         </div>
         <div className="side-panel">
+          <button
+            onClick={handleSave}
+            disabled={!draft || saveStatus === 'saving' || loadFailed}
+          >
+            SAVE
+          </button>
+          <p role="status">
+            {loadFailed
+              ? 'Backend unreachable, saving disabled'
+              : saveStatusMessages[saveStatus]}
+          </p>
           <MoveTimeline positions={gameHistory.history} />
           <CandidateMovesPanel
             moves={visibleMoves}
-            savedMoves={savedMoves}
+            draftMoves={draftMoves}
             onMoveClick={handleCandidateClick}
             onTrashClick={handleTrashClick}
           />

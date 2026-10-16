@@ -13,14 +13,9 @@ chess-frontend/dist
 chess-frontend/dist-ssr
 *.local
 
-# Go Backend builds
-chess-backend/bin/
-chess-backend/dist/
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
+# Backend directories
+chess-backend/.venv/
+__pycache__/
 
 # Editor directories and files
 .vscode/*
@@ -37,3 +32,4 @@ chess-backend/dist/
 chess-frontend/scratch.ts
 .vercel
 .env*
+!.env.example

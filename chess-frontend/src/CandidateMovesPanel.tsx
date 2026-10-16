@@ -3,14 +3,14 @@ import { Trash2 } from 'lucide-react';
 
 interface CandidateMovesPanelProps {
   moves: CandidateMove[];
-  savedMoves: string[];
+  draftMoves: string[];
   onMoveClick: (uci: string) => void;
   onTrashClick: (uci: string) => void;
 }
 
 export function CandidateMovesPanel({
   moves,
-  savedMoves,
+  draftMoves,
   onMoveClick,
   onTrashClick,
 }: CandidateMovesPanelProps) {
@@ -28,7 +28,7 @@ export function CandidateMovesPanel({
             <button className="move-row" onClick={() => onMoveClick(move.uci)}>
               <div>
                 {move.san}
-                {savedMoves.includes(move.uci) && <span>✓</span>}
+                {draftMoves.includes(move.uci) && <span>✓</span>}
               </div>
               <div>{Math.round(move.playedPercent)}%</div>
               <div className="result-bar">
@@ -50,7 +50,7 @@ export function CandidateMovesPanel({
                 </div>
               </div>
             </button>
-            {savedMoves.includes(move.uci) ? (
+            {draftMoves.includes(move.uci) ? (
               <button
                 className="remove-move"
                 aria-label="Remove move"

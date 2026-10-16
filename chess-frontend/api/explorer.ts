@@ -21,22 +21,29 @@ export default {
 
       const explorerUrl = `https://explorer.lichess.org/lichess?${params}`;
       // private token
-      const response = await fetch(explorerUrl, {
-        headers: {
-          Authorization: `Bearer ${process.env.LICHESS_TOKEN}`,
-        },
-      });
+      try {
+        const response = await fetch(explorerUrl, {
+          headers: {
+            Authorization: `Bearer ${process.env.LICHESS_TOKEN}`,
+          },
+        });
 
-      // request failed
-      if (!response.ok) {
+        // request failed
+        if (!response.ok) {
+          return Response.json(
+            { error: `Lichess responded with ${response.status}` },
+            { status: 502 },
+          );
+          // return explorer http response to browser
+        } else {
+          const data = await response.json();
+          return Response.json(data);
+        }
+      } catch {
         return Response.json(
-          { error: `Lichess responded with ${response.status}` },
+          { error: 'Lichess could not be reached' },
           { status: 502 },
         );
-        // return explorer http response to browser
-      } else {
-        const data = await response.json();
-        return Response.json(data);
       }
     }
   },

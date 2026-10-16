@@ -79,3 +79,5 @@ export interface RepertoireNode {
   move: string | null;
   children: RepertoireNode[];
 }
+
+export type SaveStatus = 'idle' | 'saving' | 'saved' | 'failed';
