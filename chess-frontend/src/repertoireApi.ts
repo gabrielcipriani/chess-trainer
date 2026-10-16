@@ -6,7 +6,7 @@ export async function fetchRepertoireTree(
   repertoireId: number,
 ): Promise<RepertoireNode> {
   const url = `${API_URL}/repertoires/${repertoireId}/tree`;
-  const response = await fetch(url);
+  const response = await fetch(url, { signal: AbortSignal.timeout(10_000) });
   if (!response.ok) {
     throw new Error(`Failed to fetch repertoire: ${response.status}`);
   }
@@ -23,6 +23,7 @@ export async function saveRepertoireTree(
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(tree),
+    signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) {
     throw new Error(`Failed to save repertoire: ${response.status}`);

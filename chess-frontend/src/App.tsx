@@ -59,6 +59,7 @@ const saveStatusMessages: Record<SaveStatus, string> = {
 };
 
 export function App() {
+  const [loadFailed, setLoadFailed] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
   const [stats, setStats] = useState<{
@@ -141,7 +142,12 @@ export function App() {
 
   // fetch saved repertoire on start and put in draft
   useEffect(() => {
-    fetchRepertoireTree(REPERTOIRE_ID).then(setDraft);
+    fetchRepertoireTree(REPERTOIRE_ID)
+      .then(setDraft)
+      .catch(() => {
+        setLoadFailed(true);
+        setDraft({ move: null, children: [] });
+      });
   }, []);
 
   const validMoves = selectedSquare
@@ -286,11 +292,15 @@ export function App() {
         <div className="side-panel">
           <button
             onClick={handleSave}
-            disabled={!draft || saveStatus === 'saving'}
+            disabled={!draft || saveStatus === 'saving' || loadFailed}
           >
             SAVE
           </button>
-          <p role="status">{saveStatusMessages[saveStatus]}</p>
+          <p role="status">
+            {loadFailed
+              ? 'Backend unreachable, saving disabled'
+              : saveStatusMessages[saveStatus]}
+          </p>
           <MoveTimeline positions={gameHistory.history} />
           <CandidateMovesPanel
             moves={visibleMoves}
