@@ -3,7 +3,7 @@ from typing import Literal
 
 import psycopg
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -28,7 +28,7 @@ class TreeNode(BaseModel):
     children: list["TreeNode"]
 
 
-@app.post("/repertoires")
+@app.post("/repertoires", status_code=status.HTTP_201_CREATED)
 def create_repertoire(repertoire: NewRepertoire):
     with psycopg.connect(DATABASE_URL) as conn:
         row = conn.execute(
