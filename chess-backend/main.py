@@ -44,7 +44,7 @@ def create_repertoire(repertoire: NewRepertoire):
 def list_repertoires():
     with psycopg.connect(DATABASE_URL) as conn:
         rows = conn.execute(
-            "SELECT id, name, color FROM repertoires ORDER by id"
+            "SELECT id, name, color FROM repertoires ORDER BY id"
         ).fetchall()
     repertoires = []
     for repertoire_id, name, color in rows:
