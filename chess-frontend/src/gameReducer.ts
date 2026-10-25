@@ -1,4 +1,4 @@
-import { checkStatus } from './checkStatus.ts';
+import { getSan } from './getSan.ts';
 import { movePiece } from './moveHandler.ts';
 
 import type { GameState, GameAction, GameHistory } from './types.ts';
@@ -39,35 +39,7 @@ export function gameReducer(
         newHalfmoveClock++;
       }
 
-      let san = '';
-      const files = 'abcdefgh';
-      const type =
-        moveResult.newLastMove.type === 'p'
-          ? moveResult.isCapture
-            ? files[moveResult.newLastMove.from.col]
-            : ''
-          : moveResult.newLastMove.type.toUpperCase();
-      const destinationSquare = `${files[moveResult.newLastMove.to.col]}${8 - moveResult.newLastMove.to.row}`;
-
-      if (moveResult.isCastling) {
-        // if king moves to col 6 it's kingside
-        san = `${moveResult.newLastMove.to.col === 6 ? 'O-O' : 'O-O-O'}`;
-      } else {
-        san = `${type}${moveResult.isCapture ? 'x' : ''}${destinationSquare}`;
-      }
-      if (moveResult.isPromotion) {
-        san += '=Q';
-      }
-      const status = checkStatus(
-        moveResult.newBoard,
-        newTurn,
-        moveResult.newLastMove,
-      );
-      if (status === 'check') {
-        san += '+';
-      } else if (status === 'checkmate') {
-        san += '#';
-      }
+      const san = getSan(moveResult, newTurn);
       // TODO: Disambiguation for san, where two pieces can reach the same square
 
       // update history

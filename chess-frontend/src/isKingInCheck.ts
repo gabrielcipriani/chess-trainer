@@ -1,4 +1,5 @@
-import type { Board, Color, PieceType } from './types.ts';
+import { findPiece } from './findPieces.ts';
+import type { Board, Color } from './types.ts';
 
 const DIRECTIONS = {
   FILE: [
@@ -14,21 +15,6 @@ const DIRECTIONS = {
     [1, -1],
   ],
 };
-
-export function findPiece(
-  board: Board,
-  turn: Color,
-  type: PieceType,
-): [number, number] | null {
-  for (const [rowIndex, row] of board.entries()) {
-    for (const [colIndex, square] of row.entries()) {
-      if (square?.type === type && square?.color === turn) {
-        return [rowIndex, colIndex];
-      }
-    }
-  }
-  return null;
-}
 
 export function isKingInCheck(board: Board, turn: Color): boolean {
   const kingPosition = findPiece(board, turn, 'k');
