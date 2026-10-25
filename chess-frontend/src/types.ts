@@ -44,6 +44,15 @@ export type GameAction =
   | { type: 'REDO' };
 //TODO RESET
 
+export interface MoveResult {
+  newBoard: Board;
+  newLastMove: LastMove;
+  isCastling: boolean;
+  isEnPassant: boolean;
+  isPromotion: boolean;
+  isCapture: boolean;
+}
+
 export interface ExplorerOpening {
   eco: string;
   name: string;

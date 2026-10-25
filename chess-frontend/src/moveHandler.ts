@@ -1,6 +1,6 @@
 import { updateBoard } from './updateBoard.ts';
 
-import type { Board, LastMove } from './types.ts';
+import type { Board, LastMove, MoveResult } from './types.ts';
 
 export function movePiece(
   board: Board,
@@ -9,7 +9,7 @@ export function movePiece(
   toRow: number,
   toCol: number,
   lastMove: LastMove | null,
-) {
+): MoveResult {
   const originSquare = board[fromRow][fromCol];
   if (!originSquare) {
     throw new Error(`Piece to move not found at (${fromRow}, ${fromCol})`);
