@@ -1,4 +1,4 @@
-import { it, expect } from 'vitest';
+import { it, expect, describe } from 'vitest';
 import { getFen } from './fen.ts';
 import type { GameState } from './types.ts';
 import { boardState } from './boardState.ts';
@@ -12,9 +12,13 @@ const initialGameState: GameState = {
   san: null,
 };
 
-it('checks if default starting board returns correct FEN', () => {
-  const fen = getFen(initialGameState);
-  expect(fen).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+describe('fen', () => {
+  it('generates the FEN for the starting position', () => {
+    const fen = getFen(initialGameState);
+    expect(fen).toBe(
+      'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+    );
+  });
 });
 
 // TODO - fix fen.ts
