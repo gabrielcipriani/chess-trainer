@@ -39,7 +39,7 @@ export function gameReducer(
         newHalfmoveClock++;
       }
 
-      const san = getSan(moveResult, newTurn);
+      const san = getSan(state.board, moveResult, newTurn, state.lastMove);
       // TODO: Disambiguation for san, where two pieces can reach the same square
 
       // update history
