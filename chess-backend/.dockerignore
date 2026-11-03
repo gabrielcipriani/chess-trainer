@@ -1,0 +1,9 @@
+__pycache__/
+.pytest_cache/
+.venv/
+.env
+conftest.py
+README.md
+schema.sql
+seed.sql
+test_main.py
