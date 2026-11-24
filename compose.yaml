@@ -10,6 +10,12 @@ services:
       - chess-db-data:/var/lib/postgresql/data
       - ./chess-backend/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
       - ./chess-backend/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+  backend:
+    build: ./chess-backend
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/chess_trainer
 
 volumes:
   chess-db-data:
